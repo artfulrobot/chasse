@@ -1,0 +1,54 @@
+<div class="crm-container">
+  <h1 crm-page-title>{{ts('Chassé: Plan Journeys')}}</h1>
+
+  <form name="myForm" crm-ui-id-scope>
+
+    <!-- List journeys and allow adding -->
+    <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >
+      <h2>Journey: {{journey.name}}</h2>
+      <div crm-ui-field="{name: 'journeyname'+i, title: ts('Journey Name')}">
+        <input crm-ui-id="{{ 'journeyname' + i }}" name="{{ 'journeyname' + i }}" ng-model="journey.name" required />
+      </div>
+      <div crm-ui-field="{name: 'journeygroup'+i, title: ts('Mailing Group')}">
+        <select crm-ui-id="{{ 'journeygroup' + i }}" name="{{ 'journeygroup' + i }}" ng-model="journey.mailing_group" required
+                crm-ui-select="{placeholder:'my mailing group...', width: '15em', allowClear:false}"
+          >
+          <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
+        </select>
+      </div>
+      <a href ng-click="deleteJourney(i)" >Delete Journey</a><br/><br/>
+
+      <h3>Steps in {{journey.name}}</h3>
+      <table>
+        <thead><tr>
+          <th>Code</th>
+          <th>Next Code</th>
+          <th>Add to Group</th>
+          <th>Send Mailing</th>
+        </tr></thead>
+        <tbody>
+          <tr ng-repeat="(step_offset, step) in journey.steps || []">
+            <td><input ng-model="step.code" required /></td>
+            <td><input ng-model="step.next_code" /></td>
+            <td><input type="checkbox" ng-true-value="'1'" ng-model="step.add_to_group" /></td>
+            <td>
+              <select ng-model="step.send_mailing"
+                crm-ui-select="{width: '35em', allowClear:true}"
+              >
+                <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <a href ng-click="addStep(journey)">Add step</a>
+    </div>
+    <br />
+    <button ng-click="save()">{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>
+
+    <pre> {{ config | json }}</pre>
+
+
+  </form>
+
+</div>
