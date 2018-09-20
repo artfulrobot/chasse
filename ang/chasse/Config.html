@@ -1,17 +1,23 @@
 <div class="crm-container">
   <h1 crm-page-title>{{ts('Chassé: Plan Journeys')}}</h1>
 
+  <div ng-show="dirty" style="background-color:hsl(50deg, 70%, 90%);padding:1rem;border:solid 1px hsl(50deg, 70%,70%);margin-bottom:1rem;">
+    <strong>There are unsaved changes</strong>
+    <button ng-click="save()">{{ts('Save')}}</button>
+  </div>
+
   <form name="myForm" crm-ui-id-scope>
 
     <!-- List journeys and allow adding -->
     <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >
       <h2>Journey: {{journey.name}}</h2>
       <div crm-ui-field="{name: 'journeyname'+i, title: ts('Journey Name')}">
-        <input crm-ui-id="{{ 'journeyname' + i }}" name="{{ 'journeyname' + i }}" ng-model="journey.name" required />
+        <input crm-ui-id="{{ 'journeyname' + i }}" name="{{ 'journeyname' + i }}" ng-model="journey.name" required ng-change="setDirty()" />
       </div>
       <div crm-ui-field="{name: 'journeygroup'+i, title: ts('Mailing Group')}">
         <select crm-ui-id="{{ 'journeygroup' + i }}" name="{{ 'journeygroup' + i }}" ng-model="journey.mailing_group" required
                 crm-ui-select="{placeholder:'my mailing group...', width: '15em', allowClear:false}"
+                ng-change="setDirty()"
           >
           <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
         </select>
@@ -28,11 +34,12 @@
         </tr></thead>
         <tbody>
           <tr ng-repeat="(step_offset, step) in journey.steps || []">
-            <td><input ng-model="step.code" required /></td>
-            <td><input ng-model="step.next_code" /></td>
-            <td><input type="checkbox" ng-true-value="'1'" ng-model="step.add_to_group" /></td>
+            <td><input ng-model="step.code" required ng-change="setDirty()" /></td>
+            <td><input ng-model="step.next_code" ng-change="setDirty()" /></td>
+            <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
             <td>
               <select ng-model="step.send_mailing"
+                 ng-change="setDirty()"
                 crm-ui-select="{width: '35em', allowClear:true}"
               >
                 <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
@@ -45,10 +52,6 @@
     </div>
     <br />
     <button ng-click="save()">{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>
-
-    <pre> {{ config | json }}</pre>
-
-
   </form>
 
 </div>

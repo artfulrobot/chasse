@@ -51,11 +51,15 @@
     // We have myContact available in JS. We also want to reference it in HTML.
     console.log("in controller chasseConfig is", chasseConfig);
     console.log("msgTpls", msgTpls);
+    const orig = CRM._.clone(chasseConfig, true);
+    $scope.dirty = false;
+    $scope.setDirty = function() { $scope.dirty = true; console.log("XXXXXXXXXXXXXXXX")};
     $scope.config = chasseConfig;
     $scope.groups = mailingGroups;
     $scope.msg_tpls = msgTpls;
 
     $scope.addJourney = function addJourney() {
+      $scope.dirty = true;
       if (CRM._.isArray(chasseConfig)) {
       chasseConfig.push({
         name: 'Untitled Journey',
@@ -63,12 +67,14 @@
       });}
     };
     $scope.deleteJourney = function (i) {
+      $scope.dirty = true;
       var journey = chasseConfig[i];
       if (confirm("Are you sure you want to delete journey called " + journey.name + "?")) {
         chasseConfig.splice(i,1);
       }
     };
     $scope.addStep = function addStep(journey) {
+      $scope.dirty = true;
       console.log("journey: ", journey);
       if (! journey.steps) {
         journey.steps = [];
@@ -87,7 +93,7 @@
         {start: ts('Saving...'), success: ts('Saved')},
         // The save action. Note that crmApi() returns a promise.
         crmApi('Setting', 'create', { 'chasse_config': chasseConfig })
-      );
+      ).then( () => $scope.dirty=false );
     };
   });
 
