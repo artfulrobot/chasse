@@ -9,8 +9,6 @@
         // under "resolve".
         resolve: {
           chasseConfig: function(crmApi) {
-            console.log("7");
-
             return crmApi('Setting', 'getvalue', { name: 'chasse_config' })
               .then( api_response => {
                 console.log(api_response);

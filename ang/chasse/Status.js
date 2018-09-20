@@ -8,11 +8,33 @@
         // If you need to look up data when opening the page, list it out
         // under "resolve".
         resolve: {
-          myContact: function(crmApi) {
-            return crmApi('Contact', 'getsingle', {
-              id: 'user_contact_id',
-              return: ['first_name', 'last_name']
-            });
+          chasseStats: function(crmApi) {
+            return crmApi('Chasse', 'getstats', {})
+              .then(result => result.values);
+          },
+          chasseConfig: function(crmApi) {
+            return crmApi('Setting', 'getvalue', { name: 'chasse_config' })
+              .then( api_response => {
+                console.log(api_response);
+                return CRM._.isArray(api_response) ? api_response : [] ;
+                })
+          },
+          mailingGroups: function(crmApi) {
+            return crmApi('group', 'get', {
+                "sequential": 1,
+                "return": ["title","id"],
+                "group_type": "Mailing List"})
+            .then( response => response.is_error ? [] : response.values );
+          },
+          msgTpls: function(crmApi) {
+            return crmApi('MessageTemplate', 'get', {
+              "sequential": 1,
+              'workflow_id' : {'IS NULL' : 1},
+              'is_sms' : 0,
+              'options' : {limit: 0},
+              "return": ["id","msg_title"]
+            })
+            .then( response => response.is_error ? [] : response.values );
           }
         }
       });
@@ -23,13 +45,21 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('chasse').controller('ChasseStatus', function($scope, crmApi, crmStatus, crmUiHelp, myContact) {
+  angular.module('chasse').controller('ChasseStatus', function($scope, crmApi, crmStatus, crmUiHelp,
+    chasseStats, chasseConfig, msgTpls, mailingGroups) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('chasse');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/chasse/Status'}); // See: templates/CRM/chasse/Status.hlp
 
-    // We have myContact available in JS. We also want to reference it in HTML.
-    $scope.myContact = myContact;
+    $scope.stats = chasseStats;
+    $scope.config = chasseConfig;
+    var msg_tpl_lookup = {};
+    for (i of msgTpls) msg_tpl_lookup[i.id] = i.msg_title;
+    $scope.msg_tpls = msg_tpl_lookup;
+
+    var groups = {};
+    for (i of mailingGroups) groups[i.id] = i.title;
+    $scope.groups = groups;
 
     $scope.save = function save() {
       return crmStatus(

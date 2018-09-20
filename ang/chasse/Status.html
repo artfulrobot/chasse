@@ -1,4 +1,27 @@
 <div class="crm-container">
   <h1 crm-page-title>Chassé Journey Status</h1>
 
+  <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >
+    <h2>Journey: {{journey.name}}</h2>
+    <ul>
+    <table>
+      <thead><tr>
+        <th>Step</th>
+        <th>Contacts</th>
+        <th>Next Step</th>
+      </tr></thead>
+      <tbody>
+        <tr ng-repeat="(step_offset, step) in journey.steps || []">
+          <td><strong>{{step.code}}</strong></td>
+          <td>{{ stats[step.code] || 0 }}</td>
+          <td>
+            <span ng-show="step.send_mailing" >→ Send Mailing <em>{{msg_tpls[step.send_mailing]}}</em></span>
+            <span ng-show="step.add_to_group" >→ Add to group <em>{{groups[journey.mailing_group]}}</em></span>
+            <span ng-show="step.next_code">→ Update to step <strong>{{step.next_code}}</strong></span>
+            <span ng-show="!step.next_code">→ [journey ends]</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
