@@ -1,9 +1,9 @@
 <div class="crm-container">
   <h1 crm-page-title>Chassé Journey Status</h1>
+  <p><a href="#/chasse/config" >Edit Chassé Journey Plans</a> | <a href ng-click="reload()">Refresh status</a></p>
 
   <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >
     <h2>Journey: {{journey.name}}</h2>
-    <ul>
     <table>
       <thead><tr>
         <th>Step</th>
@@ -23,5 +23,6 @@
         </tr>
       </tbody>
     </table>
+    <button ng-click="runJourney(i)" ng-disabled="busy">Process Now</button>
   </div>
 </div>

@@ -22,7 +22,6 @@ function _civicrm_api3_chasse_Getstats_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_chasse_Getstats($params) {
-
   require_once 'CRM/Core/BAO/CustomField.php';
   $customFieldID = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
   list($table, $column, $custom_group_id) = CRM_Core_BAO_CustomField::getTableColumnGroup($customFieldID);

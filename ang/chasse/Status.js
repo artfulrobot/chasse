@@ -61,6 +61,23 @@
     for (i of mailingGroups) groups[i.id] = i.title;
     $scope.groups = groups;
 
+    $scope.busy = false;
+
+    $scope.runJourney = function (journey_index) {
+      $scope.busy = true;
+
+      var r = {name: chasseConfig[journey_index].name};
+      return crmStatus(
+        // Status messages. For defaults, just use "{}"
+        {start: ts('Processing Journey: %name...', r), success: ts('Finished processing journey: %name', r)},
+        // The save action. Note that crmApi() returns a promise.
+        crmApi('Chasse', 'step', { journey_index: journey_index })
+      ).then(response => {
+        $scope.busy = false;
+        return crmApi('Chasse', 'getstats', {})
+          .then(result => $scope.stats = result.values);
+      });
+    };
     $scope.save = function save() {
       return crmStatus(
         // Status messages. For defaults, just use "{}"
@@ -71,6 +88,15 @@
           first_name: myContact.first_name,
           last_name: myContact.last_name
         })
+      );
+    };
+    $scope.reload = function () {
+      return crmStatus(
+        // Status messages. For defaults, just use "{}"
+        {start: ts('Loading...'), success: ts('Loaded')},
+        // The save action. Note that crmApi() returns a promise.
+        crmApi('Chasse', 'getstats', {})
+        .then( result => $scope.stats = result.values )
       );
     };
   });

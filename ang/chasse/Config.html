@@ -1,5 +1,6 @@
 <div class="crm-container">
   <h1 crm-page-title>{{ts('Chassé: Plan Journeys')}}</h1>
+  <p><a href="#/chasse" >Chassé Overview</a></p>
 
   <div ng-show="dirty" style="background-color:hsl(50deg, 70%, 90%);padding:1rem;border:solid 1px hsl(50deg, 70%,70%);margin-bottom:1rem;">
     <strong>There are unsaved changes</strong>
@@ -16,10 +17,18 @@
       </div>
       <div crm-ui-field="{name: 'journeygroup'+i, title: ts('Mailing Group')}">
         <select crm-ui-id="{{ 'journeygroup' + i }}" name="{{ 'journeygroup' + i }}" ng-model="journey.mailing_group" required
-                crm-ui-select="{placeholder:'my mailing group...', width: '15em', allowClear:false}"
+                crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
                 ng-change="setDirty()"
           >
           <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
+        </select>
+      </div>
+      <div crm-ui-field="{name: 'journeyfrom'+i, title: ts('From address')}">
+        <select crm-ui-id="{{ 'journeyfrom' + i }}"  ng-model="journey.mail_from" required
+                crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
+                ng-change="setDirty()"
+          >
+          <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
         </select>
       </div>
       <a href ng-click="deleteJourney(i)" >Delete Journey</a><br/><br/>
@@ -31,6 +40,7 @@
           <th>Next Code</th>
           <th>Add to Group</th>
           <th>Send Mailing</th>
+          <th>Re-order</th>
         </tr></thead>
         <tbody>
           <tr ng-repeat="(step_offset, step) in journey.steps || []">
@@ -40,14 +50,20 @@
             <td>
               <select ng-model="step.send_mailing"
                  ng-change="setDirty()"
-                crm-ui-select="{width: '35em', allowClear:true}"
+                 crm-ui-select="{width: '35em', allowClear:true}"
               >
+                <option value="">(None)</option>
                 <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
               </select>
+            </td>
+            <td>
+              <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
+              <button ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
             </td>
           </tr>
         </tbody>
       </table>
+      <p>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
       <a href ng-click="addStep(journey)">Add step</a>
     </div>
     <br />

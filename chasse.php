@@ -134,6 +134,25 @@ function chasse_civicrm_entityTypes(&$entityTypes) {
   _chasse_civix_civicrm_entityTypes($entityTypes);
 }
 
+/**
+ * Implements hook_civicrm_unsubscribeGroups so that we drop people's journey
+ * status if they unsubscribe from the related mailing group.
+ *
+ * Nb. this was difficult/inefficent/impossible to implement using
+ * `hook_civicrm_post` because there's some strange behaviour therein:
+ * unsubscribe may issue 'create' (with status "Removed") hooks, *or* 'delete'
+ * - but the latter is created whether it's a deletion or a removal.
+ *
+ * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_unsubscribeGroups/
+ *
+ */
+function chasse_civicrm_unsubscribeGroups($op, $mailingId, $contactId, &$groups, &$baseGroups) {
+
+  // We only care about baseGroups.
+  $chasse_processor = new CRM_Chasse_Processor();
+  $chasse_processor->handleUnsubscribe($baseGroups, $contactId);
+
+}
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
@@ -161,3 +180,4 @@ function chasse_civicrm_navigationMenu(&$menu) {
   ));
   _chasse_civix_navigationMenu($menu);
 } // */
+

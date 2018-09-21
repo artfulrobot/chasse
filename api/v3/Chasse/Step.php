@@ -10,7 +10,13 @@ use CRM_Chasse_ExtensionUtil as E;
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_chasse_Step_spec(&$spec) {
-  $spec['magicword']['api.required'] = 1;
+  //$spec['magicword']['api.required'] = 1;
+  $spec['journey_index'] = [
+    'description' => 'Only process given journey. Index 0 is the first one.',
+  ];
+  $spec['step'] = [
+    'description' => 'Only process given step. Requires journey_index.',
+  ];
 }
 
 /**
@@ -23,20 +29,53 @@ function _civicrm_api3_chasse_Step_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_chasse_Step($params) {
-  if (array_key_exists('magicword', $params) && $params['magicword'] == 'sesame') {
-    $returnValues = array(
-      // OK, return several data rows
-      12 => array('id' => 12, 'name' => 'Twelve'),
-      34 => array('id' => 34, 'name' => 'Thirty four'),
-      56 => array('id' => 56, 'name' => 'Fifty six'),
-    );
-    // ALTERNATIVE: $returnValues = array(); // OK, success
-    // ALTERNATIVE: $returnValues = array("Some value"); // OK, return a single value
 
-    // Spec: civicrm_api3_create_success($values = 1, $params = array(), $entity = NULL, $action = NULL)
-    return civicrm_api3_create_success($returnValues, $params, 'NewEntity', 'NewAction');
+  $config = Civi::settings()->get('chasse_config');
+  if (!$config) {
+    throw new API_Exception("No Chassé journey plans are configured. Cannot process.");
+  }
+
+  // Validate parameters and then pass on to processor.
+  $journey_index = NULL;
+  if (isset($params['journey_index'])) {
+    $journey_index = (int) $params['journey_index'];
+    if ($journey_index < 0 || $journey_index >= count($config)) {
+      throw new API_Exception("Invalid journey_index");
+    }
+  }
+
+  $step = NULL;
+  if (isset($params['step'])) {
+    if ($journey_index === NULL) {
+      throw new API_Exception("Missing journey_index. This is required when specifiying 'step'");
+    }
+    if (empty(trim($params['step']))) {
+      throw new API_Exception("Invalid (empty) step code.");
+    }
+    $found_step_index = NULL;
+    foreach ($config[$journey_index]['steps'] as $step_index => $step) {
+      if ($step['code'] === $params['step']) {
+        $found_step_index = $step_index;
+        break;
+      }
+    }
+    if ($found_step_index === NULL) {
+      throw new API_Exception("Invalid 'step' parameter for journey $journey_index (" . $config[$journey_index]['name']. ")");
+    }
+
+  }
+
+  $chasse_processor = new CRM_Chasse_Processor();
+  if ($journey_index !== NULL) {
+    if ($found_step_index !== NULL) {
+      $chasse_processor->step($journey_index, $found_step_index);
+    }
+    else {
+      $chasse_processor->journey($journey_index);
+    }
   }
   else {
-    throw new API_Exception(/*errorMessage*/ 'Everyone knows that the magicword is "sesame"', /*errorCode*/ 1234);
+    $chasse_processor->allJourneys($journey_index);
   }
+  return civicrm_api3_create_success([], $params, 'Chasse', 'Step');
 }
