@@ -144,14 +144,27 @@ function chasse_civicrm_entityTypes(&$entityTypes) {
  * - but the latter is created whether it's a deletion or a removal.
  *
  * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_unsubscribeGroups/
+ * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_post/
+ *
  *
  */
-function chasse_civicrm_unsubscribeGroups($op, $mailingId, $contactId, &$groups, &$baseGroups) {
+function chasse_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 
-  // We only care about baseGroups.
-  $chasse_processor = new CRM_Chasse_Processor();
-  $chasse_processor->handleUnsubscribe($baseGroups, $contactId);
+  if ($objectName == 'GroupContact' && ($op == 'create' || $op == 'delete')) {
+    // objectId is the group.
+    // objectRef is an array of contact_ids.
 
+    // First we need to check whether this 'create' GroupContact thing was 'creating' a 'Removed' record.
+    $dao = new CRM_Contact_BAO_GroupContact();
+    $dao->group_id = $objectId;
+    $dao->contact_id = reset($objectRef);
+    $dao->find(TRUE);
+    if ($dao->status == 'Removed') {
+      // This was a removal. Might need to clear the journey step.
+      $chasse_processor = new CRM_Chasse_Processor();
+      $chasse_processor->handleUnsubscribe($dao->group_id, $objectRef);
+    }
+  }
 }
 // --- Functions below this ship commented out. Uncomment as required. ---
 

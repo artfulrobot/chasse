@@ -244,18 +244,16 @@ class CRM_Chasse_Processor
     throw new \Exception("Step '$step_code' not found");
   }
   /**
-   * Clear the journey field for contacts if they click unsubscribe.
+   * Clear the journey field for contacts if they have been removed from the group.
    *
-   * This does not work because the hook is called before the user has confirmed they wish to unsubscribe!
-   *
-   * @var Array $group_ids
+   * @var int $group_id
    * @var Array $contact_ids
    */
-  public function handleUnsubscribe($group_ids, $contact_id) {
+  public function handleUnsubscribe($group_id, $contact_ids) {
 
     $steps_to_clear = [];
     foreach ($this->journeys as $journey_index=>$journey) {
-      if (in_array($journey['mailing_group'], $group_ids)) {
+      if ($journey['mailing_group'] == $group_id) {
         foreach ($journey['steps'] as $step) {
           $steps_to_clear[] = $step['code'];
         }
@@ -267,14 +265,14 @@ class CRM_Chasse_Processor
     }
 
     // Stuff to do.
-    $contact_id = (int)$contact_id;
+    $contact_ids = implode(',', array_map(function($_) { return (int)$_; }, $contact_ids));
     $steps_to_clear = CRM_Core_DAO::escapeStrings($steps_to_clear);
-    if (!$contact_id) {
+    if (!$contact_ids) {
       // Odd.
       return;
     }
     $sql = "UPDATE $this->table_name SET $this->column_name = NULL "
-      . "WHERE entity_id = $contact_id AND $this->column_name IN($steps_to_clear)";
+      . "WHERE entity_id IN ($contact_ids) AND $this->column_name IN($steps_to_clear)";
     CRM_Core_DAO::executeQuery($sql);
 
   }
