@@ -59,6 +59,7 @@
             <td>
               <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
               <button ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
+              <button ng-click="deleteStep(journey, step_offset)"  >Delete</button>
             </td>
           </tr>
         </tbody>

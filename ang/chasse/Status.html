@@ -1,5 +1,9 @@
 <div class="crm-container">
   <h1 crm-page-title>Chassé Journey Status</h1>
+
+  <div style="margin-bottom:2rem;text-align:center; padding:2rem;background:hsl(40deg, 80%, 95%);" ng-show="(config || []).length == 0" >
+    No journeys planned yet. Shall we <a href='#chasse/config'>do that now</a>?
+  </div>
   <p><a href="#/chasse/config" >Edit Chassé Journey Plans</a> | <a href ng-click="reload()">Refresh status</a></p>
 
   <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >

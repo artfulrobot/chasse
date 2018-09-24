@@ -58,10 +58,9 @@
 
     // We have myContact available in JS. We also want to reference it in HTML.
     console.log("in controller chasseConfig is", chasseConfig);
-    console.log("msgTpls", msgTpls);
     const orig = CRM._.clone(chasseConfig, true);
     $scope.dirty = false;
-    $scope.setDirty = function() { $scope.dirty = true; console.log("XXXXXXXXXXXXXXXX")};
+    $scope.setDirty = function() { $scope.dirty = true;};
     $scope.config = chasseConfig;
     $scope.groups = mailingGroups;
     $scope.msg_tpls = msgTpls;
@@ -84,11 +83,14 @@
     };
     $scope.moveStep = function addStep(journey, step_old, step_new) {
       $scope.dirty = true;
-      console.log("orig", journey.steps);
       var tmp = journey.steps.splice(step_old,1)[0];
-      console.log("tmp", tmp);
       journey.steps.splice(step_new, 0, tmp);
-      console.log("now", journey.steps);
+    };
+    $scope.deleteStep = function addStep(journey, step_idx) {
+      if (confirm("Delete this step, sure?")) {
+        $scope.dirty = true;
+        journey.steps.splice(step_idx, 1);
+      }
     };
     $scope.addStep = function addStep(journey) {
       $scope.dirty = true;
@@ -99,7 +101,7 @@
       journey.steps.push({
         code: '',
         next_code: '',
-        send_mailing: true,
+        send_mailing: '',
         add_to_group: false,
       });
     };
@@ -112,6 +114,10 @@
         crmApi('Setting', 'create', { 'chasse_config': chasseConfig })
       ).then( () => $scope.dirty=false );
     };
+
+    if ((chasseConfig || []).length == 0) {
+      $scope.addJourney();
+    }
   });
 
 })(angular, CRM.$, CRM._);
