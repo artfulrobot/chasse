@@ -9,41 +9,32 @@ use Civi\Test\TransactionalInterface;
  * This is a generic test class implemented with PHPUnit.
  * @group headless
  */
-class api_v3_Chasse_GetstatsTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
+class api_v3_Chasse_GetstatsTest extends api_v3_Chasse_Base
+{
 
   /**
-   * Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
-   * See: https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
+   * Check our SQL works for counting contacts per step.
    */
-  public function setUpHeadless() {
-    return \Civi\Test::headless()
-      ->installMe(__DIR__)
-      ->apply();
-  }
+  public function testGetstats() {
+    $result = civicrm_api3('Chasse', 'Getstats', []);
+    $this->assertEmpty($result['values']);
 
-  /**
-   * The setup() method is executed before the test is executed (optional).
-   */
-  public function setUp() {
-    parent::setUp();
-  }
+    $chasse_processor = new CRM_Chasse_Processor();
 
-  /**
-   * The tearDown() method is executed after the test was executed (optional)
-   * This can be used for cleanup.
-   */
-  public function tearDown() {
-    parent::tearDown();
-  }
-
-  /**
-   * Simple example test case.
-   *
-   * Note how the function name begins with the word "test".
-   */
-  public function testApiExample() {
-    $result = civicrm_api3('Chasse', 'Getstats', array('magicword' => 'sesame'));
-    $this->assertEquals('Twelve', $result['values'][12]['name']);
+    // Set a step for a couple of contacts.
+    civicrm_api3('Contact', 'create', [
+      'id' => $this->contact_fixtures[0]['id'],
+      $chasse_processor->step_api_field => 'S1',
+    ]);
+    civicrm_api3('Contact', 'create', [
+      'id' => $this->contact_fixtures[1]['id'],
+      $chasse_processor->step_api_field => 'S2',
+    ]);
+    civicrm_api3('Contact', 'create', [
+      'id' => $this->contact_fixtures[2]['id'],
+      $chasse_processor->step_api_field => 'S2',
+    ]);
+    $this->assertStats([ 'S1' => 1, 'S2' => 2 ]);
   }
 
 }

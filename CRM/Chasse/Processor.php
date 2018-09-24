@@ -4,6 +4,8 @@
  * @file
  * Process chassé journeys, step at a time.
  *
+ * (This also provides some helper methods for testing.)
+ *
  */
 class CRM_Chasse_Processor
 {
@@ -17,6 +19,9 @@ class CRM_Chasse_Processor
   /** @var string column name for our custom step field */
   public $column_name;
 
+  /** @var string custom_NNN where NNN is step_field_id */
+  public $step_api_field;
+
   /** @var array keys are step codes, value is the smart group ID */
   protected $smart_group_cache = [];
   public function __construct() {
@@ -24,6 +29,7 @@ class CRM_Chasse_Processor
 
     require_once 'CRM/Core/BAO/CustomField.php';
     $this->step_field_id = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
+    $this->step_api_field = 'custom_' . $this->step_field_id;
     list($this->table_name, $this->column_name, $custom_group_id) = CRM_Core_BAO_CustomField::getTableColumnGroup($this->step_field_id);
   }
 

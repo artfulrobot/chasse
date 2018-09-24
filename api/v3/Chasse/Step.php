@@ -45,6 +45,7 @@ function civicrm_api3_chasse_Step($params) {
   }
 
   $step = NULL;
+  $found_step_index = NULL;
   if (isset($params['step'])) {
     if ($journey_index === NULL) {
       throw new API_Exception("Missing journey_index. This is required when specifiying 'step'");
@@ -52,7 +53,6 @@ function civicrm_api3_chasse_Step($params) {
     if (empty(trim($params['step']))) {
       throw new API_Exception("Invalid (empty) step code.");
     }
-    $found_step_index = NULL;
     foreach ($config[$journey_index]['steps'] as $step_index => $step) {
       if ($step['code'] === $params['step']) {
         $found_step_index = $step_index;
