@@ -45,6 +45,8 @@ cv en chasse
 
 ## Example use case
 
+**Hint**: You should find a link to **Chassé Supporter Journeys** under the **Mailings** menu, once this is installed.
+
 When people sign up for our email newsletter, instead of just chucking them on the list with everyone else, we want to send them a particular email each week, so we can welcome them, introduce what we do, and finally, give them the opportunity to make a cash donation. At the end of these 3 weeks the contact is moved to the main newsletter group and receives that along with everyone else.
 
 If they do give a cash donation, we want put them on a new 4 week journey, at the end of which we'll ask them for a regular gift. Again, if they don't take up that opportunity they'll just go onto the newsletter list as normal.
