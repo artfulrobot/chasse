@@ -1,5 +1,5 @@
 Package: chasse
-Copyright (C) 2018, FIXME <FIXME>
+Copyright (C) 2018, Rich Lott / Artful Robot <forums@artfulrobot.uk>
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------
