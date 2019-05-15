@@ -19,7 +19,7 @@
             return crmApi('group', 'get', {
                 "sequential": 1,
                 "return": ["title","id"],
-                "options": {"limit":0}
+                "options": {"limit":0},
                 "group_type": "Mailing List"})
             .then( response => response.is_error ? [] : response.values );
           },
