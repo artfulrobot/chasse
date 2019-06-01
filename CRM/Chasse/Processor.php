@@ -14,6 +14,10 @@ class CRM_Chasse_Processor
 
   /** @var int The custom field id for our step field. */
   public $step_field_id;
+  /** @var int The custom field id for our not_before field. */
+  public $not_before_field_id;
+  /** @var string The custom not_before field's api name. */
+  public $not_before_api_field;
   /** @var string table */
   public $table_name;
   /** @var string column name for our custom step field */
@@ -30,6 +34,8 @@ class CRM_Chasse_Processor
     require_once 'CRM/Core/BAO/CustomField.php';
     $this->step_field_id = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
     $this->step_api_field = 'custom_' . $this->step_field_id;
+    $this->not_before_field_id = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_not_before', 'chasse');
+    $this->not_before_api_field = 'custom_' . $this->not_before_field_id;
     list($this->table_name, $this->column_name, $custom_group_id) = CRM_Core_BAO_CustomField::getTableColumnGroup($this->step_field_id);
   }
 
