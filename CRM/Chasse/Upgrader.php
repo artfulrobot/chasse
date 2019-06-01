@@ -14,46 +14,65 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    */
   public function install() {
 
-    /**
-     * Helper function for creating data structures.
-     *
-     * @param string $entity - name of the API entity.
-     * @param Array $params_min parameters to use for search.
-     * @param Array $params_extra these plus $params_min are used if a create call
-     *              is needed.
-     */
-    $api_get_or_create = function ($entity, $params_min, $params_extra) {
-      $params_min += ['sequential' => 1];
-      $result = civicrm_api3($entity, 'get', $params_min);
-      if (!$result['count']) {
-        // Couldn't find it, create it now.
-        $result = civicrm_api3($entity, 'create', $params_extra + $params_min);
-      }
-      return $result['values'][0];
-    };
-
     // Ensure we have the custom field group we need for contributions.
-    $chasse_custom_group = $api_get_or_create('CustomGroup', [
+    $chasse_custom_group = $this->api_get_or_create('CustomGroup', [
         'name' => "chasse",
         'extends' => "Contact",
       ],
       ['title' => 'Chassé: Supporter Journey']);
 
     // Add the step field
-    $journey_step = $api_get_or_create('CustomField', [
-      'name' => "chasse_step",
+    $journey_step = $this->api_get_or_create('CustomField', [
+      'name'            => "chasse_step",
       'custom_group_id' => $chasse_custom_group['id'],
-      'data_type' => "String",
-      'html_type' => 'Text',
-      'is_required' => "0",
-      'is_searchable' => "1",
-      'default_value' => "",
-      'text_length' => "20",
+      'data_type'       => "String",
+      'html_type'       => 'Text',
+      'is_required'     => "0",
+      'is_searchable'   => "1",
+      'default_value'   => "",
+      'text_length'     => "20",
     ],
     ['label' => 'Current Step']);
 
+    // Add the not_before field
+    $journey_step = $this->api_get_or_create('CustomField', [
+      'name'            => "chasse_not_before",
+      'custom_group_id' => $chasse_custom_group['id'],
+    ],
+    [
+      'label'            => 'Do not process before date',
+      'column_name'      => "not_before",
+      'data_type'        => "Date",
+      'html_type'        => 'Select Date',
+      'is_required'      => "0",
+      'is_searchable'    => "1",
+      "is_search_range"  => "1",
+      'default_value'    => "",
+      'start_date_years' => 0,
+      'end_date_years'   => 0,
+      'date_format'      => 'd M yy',
+      'time_format'      => '2',
+    ]);
   }
 
+
+  /**
+   * Helper function for creating data structures.
+   *
+   * @param string $entity - name of the API entity.
+   * @param Array $params_min parameters to use for search.
+   * @param Array $params_extra these plus $params_min are used if a create call
+   *              is needed.
+   */
+  protected function api_get_or_create($entity, $params_min, $params_extra) {
+    $params_min += ['sequential' => 1];
+    $result = civicrm_api3($entity, 'get', $params_min);
+    if (!$result['count']) {
+      // Couldn't find it, create it now.
+      $result = civicrm_api3($entity, 'create', $params_extra + $params_min);
+    }
+    return $result['values'][0];
+  }
   /**
    * Example: Work with entities usually not available during the install step.
    *
@@ -73,10 +92,16 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
   }
 
   /**
-   * Example: Run an external SQL script when the module is uninstalled.
-   *
+   * Remove the custom field set.
+   */
   public function uninstall() {
-   $this->executeSqlFile('sql/myuninstall.sql');
+    $chasse_custom_group_id = (int) civicrm_api3('CustomGroup', 'getvalue', [
+        'name' => "chasse",
+        'return' => 'id']);
+
+    if ($chasse_custom_group_id > 0) {
+      civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
+    }
   }
 
   /**
@@ -169,4 +194,38 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     return TRUE;
   } // */
 
+
+  /**
+   * Upgrading from v1 to v2 we need to:
+   *
+   * - Add the not_before custom field to the chasse custom field group.
+   * - Update the journey configuration JSON
+   */
+  public function upgrade_0001() {
+    $chasse_custom_group_id = civicrm_api3('CustomGroup', 'getvalue', [
+        'name' => "chasse",
+        'return' => 'id']);
+
+    // Add the not_before field
+    $journey_step = $this->api_get_or_create('CustomField', [
+      'name'             => "chasse_not_before",
+      'custom_group_id'  => $chasse_custom_group_id,
+    ],
+    [
+      'label'            => 'Do not process before date',
+      'column_name'      => "not_before",
+      'data_type'        => "Date",
+      'html_type'        => 'Select Date',
+      'is_required'      => "0",
+      'is_searchable'    => "1",
+      "is_search_range"  => "1",
+      'default_value'    => "",
+      'start_date_years' => 0,
+      'end_date_years'   => 0,
+      'date_format'      => 'd M yy',
+      'time_format'      => '2',
+    ]);
+
+    return TRUE;
+  }
 }
