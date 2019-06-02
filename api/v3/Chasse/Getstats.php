@@ -26,9 +26,10 @@ function civicrm_api3_chasse_Getstats($params) {
   $customFieldID = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
   list($table, $column, $custom_group_id) = CRM_Core_BAO_CustomField::getTableColumnGroup($customFieldID);
   $stats = CRM_Core_DAO::executeQuery(
-    "SELECT $column AS `step`, COUNT(*) AS contacts
-     FROM $table
-     WHERE $column IS NOT NULL
+    "SELECT ch.$column AS `step`, COUNT(*) AS contacts
+     FROM $table ch
+     INNER JOIN civicrm_contact cc ON ch.entity_id = cc.id AND cc.is_deleted = 0
+     WHERE ch.$column IS NOT NULL
      GROUP BY $column"
   )->fetchMap('step', 'contacts');
   foreach ($stats as &$_) { $_ = (int) $_; }

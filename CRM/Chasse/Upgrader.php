@@ -226,6 +226,36 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
       'time_format'      => '2',
     ]);
 
+    // Upgrade the configuration.
+    $journeys = Civi::settings()->get('chasse_config');
+    if (!$journeys) {
+      $journeys = [];
+    }
+
+    // check we've not already upgraded.
+    if (!isset($journeys['next_id'])) {
+
+      $new_journeys_array = [];
+      foreach ($journeys['journeys'] as $i => $journey) {
+        // Originally journeys were stored as an array and referenced by their index.
+        // This could cause problems, e.g. if one is deleted then an automated job could
+        // now be triggering the wrong journey. So give each job an ID like journeyNNN and
+        // make sure that can't change. This is how journeys should be referenced in future.
+        $id = "journey$i";
+        $journey['id'] = $id;
+
+        // 3. Originally all journeys were manually processed, now we have scheduled too.
+        $journey['processing'] = 'manual';
+
+        $new_journeys_array[$id] = $journey;
+      }
+
+      // Move the main journeys down in to a sub-array if this has not been done yet.
+      $journeys = ['journeys' => $new_journeys_array, 'next_id' => count($new_journeys_array)];
+
+      Civi::settings()->set('chasse_config', $journeys);
+    }
+
     return TRUE;
   }
 }

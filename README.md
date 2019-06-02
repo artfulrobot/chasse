@@ -119,3 +119,17 @@ When someone unsubscribes from the mailing group used by one of these mailings, 
 
 
 
+
+## Release notes
+
+### v2
+
+Breaking changes:
+
+If you had any code that called the Chasse.step API using `journey_index` you
+now need to update this to use `journey_id`. Journey indexes were problematic -
+delete journey 0 and now journey 0 would be what used to be journey 1.
+
+After initial upgrade journey id will be 'journeyN' where N is the old journey
+index. But after changing journeys there may be different numbers so look them
+up before writing them into scripts.

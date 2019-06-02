@@ -37,7 +37,7 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
     // Sanity check.
     $this->assertStats(['S1' => 1, 'S2' => 2]);
 
-    $result = civicrm_api3('Chasse', 'step', ['journey_index' => 0, 'step' => 'S2']);
+    $result = civicrm_api3('Chasse', 'step', ['journey_id' => 'journey1', 'step' => 'S2']);
     $this->assertEquals(0, $result['is_error']);
     // The stats should now show no one in S2 but S1 should be the same.
     $this->assertStats(['S1' => 1]);
@@ -78,7 +78,7 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
   /**
    * Check performing one journey
    */
-  public function testJourney0() {
+  public function testJourney1() {
 
     $this->configureChasse();
 
@@ -102,7 +102,7 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
     $this->assertStats(['S1' => 1, 'S2' => 2]);
 
     // Step the whole journey.
-    $result = civicrm_api3('Chasse', 'step', ['journey_index' => 0]);
+    $result = civicrm_api3('Chasse', 'step', ['journey_id' => 'journey1']);
     $this->assertEquals(0, $result['is_error']);
     // The stats should now show no one in S2 but one person in S1.
     $this->assertStats(['S2' => 1]);
@@ -166,15 +166,17 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
    */
   public function configureChasse() {
     $config = [
-      [
-        'name' => 'Test Journey 1',
+      'next_id' => 1,
+      'journeys' => ['journey1' => [
+        'name'          => 'Test Journey 1',
+        'id'            => 'journey1',
         'mailing_group' => $this->mailing_group,
-        'mail_from' => $this->from_id,
-        'steps' => [
+        'mail_from'     => $this->from_id,
+        'steps'         => [
           [ 'code' => 'S1', 'next_code' => 'S2', 'send_mailing' => $this->msg_tpl_1, 'add_to_group' => ''],
           [ 'code' => 'S2', 'next_code' => '', 'send_mailing' => $this->msg_tpl_2, 'add_to_group' => "1"],
-        ]
-      ],
+        ],
+      ]],
     ];
     $this->journeys = Civi::settings()->set('chasse_config', $config);
   }

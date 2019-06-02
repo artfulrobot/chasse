@@ -11,11 +11,11 @@ use CRM_Chasse_ExtensionUtil as E;
  */
 function _civicrm_api3_chasse_Step_spec(&$spec) {
   //$spec['magicword']['api.required'] = 1;
-  $spec['journey_index'] = [
-    'description' => 'Only process given journey. Index 0 is the first one.',
+  $spec['journey_id'] = [
+    'description' => 'Only process given journey ID. Journey IDs are like: "journey7".',
   ];
   $spec['step'] = [
-    'description' => 'Only process given step. Requires journey_index.',
+    'description' => 'Only process given step. Requires journey_id.',
   ];
 }
 
@@ -31,51 +31,64 @@ function _civicrm_api3_chasse_Step_spec(&$spec) {
 function civicrm_api3_chasse_Step($params) {
 
   $config = Civi::settings()->get('chasse_config');
-  if (!$config) {
+  if (!isset($config['journeys'])) {
+    echo(json_encode($config, JSON_PRETTY_PRINT));
     throw new API_Exception("No Chassé journey plans are configured. Cannot process.");
   }
 
-  // Validate parameters and then pass on to processor.
-  $journey_index = NULL;
+  // Stop if given a journey index.
   if (isset($params['journey_index'])) {
-    $journey_index = (int) $params['journey_index'];
-    if ($journey_index < 0 || $journey_index >= count($config)) {
-      throw new API_Exception("Invalid journey_index");
+    throw new API_Exception("Calling Chasse.step API with journey_index is deprecated. See README.md release notes for v2.");
+  }
+
+  // Validate parameters and then pass on to processor.
+  $single_journey = NULL;
+  if (isset($params['journey_id'])) {
+    foreach ($config['journeys'] as $journey) {
+      if ($journey['id'] === $params['journey_id']) {
+        $single_journey = $journey;
+        break;
+      }
+    }
+    if (!$single_journey) {
+      throw new API_Exception("Invalid journey_id not found. Perhaps it's been deleted?");
     }
   }
 
   $step = NULL;
   $found_step_index = NULL;
   if (isset($params['step'])) {
-    if ($journey_index === NULL) {
-      throw new API_Exception("Missing journey_index. This is required when specifiying 'step'");
+    if (!$single_journey) {
+      throw new API_Exception("Missing journey_id. This is required when specifiying 'step'");
     }
     if (empty(trim($params['step']))) {
       throw new API_Exception("Invalid (empty) step code.");
     }
-    foreach ($config[$journey_index]['steps'] as $step_index => $step) {
+    foreach ($single_journey['steps'] as $step_index => $step) {
       if ($step['code'] === $params['step']) {
         $found_step_index = $step_index;
         break;
       }
     }
     if ($found_step_index === NULL) {
-      throw new API_Exception("Invalid 'step' parameter for journey $journey_index (" . $config[$journey_index]['name']. ")");
+      throw new API_Exception("Invalid 'step' parameter for journey {$journey['id']} (" . $single_journey['name']. ")");
     }
-
   }
 
   $chasse_processor = new CRM_Chasse_Processor();
-  if ($journey_index !== NULL) {
+  if ($single_journey) {
     if ($found_step_index !== NULL) {
-      $chasse_processor->step($journey_index, $found_step_index);
+      // Process single step.
+      $chasse_processor->step($journey['id'], $found_step_index);
     }
     else {
-      $chasse_processor->journey($journey_index);
+      // Process all steps for a journey.
+      $chasse_processor->journey($journey['id']);
     }
   }
   else {
-    $chasse_processor->allJourneys($journey_index);
+    // Process all journeys.
+    $chasse_processor->allJourneys();
   }
   return civicrm_api3_create_success([], $params, 'Chasse', 'Step');
 }

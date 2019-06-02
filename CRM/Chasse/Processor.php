@@ -10,7 +10,7 @@
 class CRM_Chasse_Processor
 {
   /** @var Array cache of chasse_config. */
-  protected $journeys;
+  protected $config;
 
   /** @var int The custom field id for our step field. */
   public $step_field_id;
@@ -29,7 +29,7 @@ class CRM_Chasse_Processor
   /** @var array keys are step codes, value is the smart group ID */
   protected $smart_group_cache = [];
   public function __construct() {
-    $this->journeys = Civi::settings()->get('chasse_config');
+    $this->config = Civi::settings()->get('chasse_config');
 
     require_once 'CRM/Core/BAO/CustomField.php';
     $this->step_field_id = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
@@ -43,44 +43,64 @@ class CRM_Chasse_Processor
    * Process all steps in all journeys.
    */
   public function allJourneys() {
-    foreach ($this->journeys as $i => $journey) {
+    foreach ($this->config['journeys'] as $i => $journey) {
       $this->journey($i);
     }
   }
   /**
    * Process all steps in a journey.
    *
-   * @param int $journey_index
+   * @param string $journey_id
    */
-  public function journey($journey_index) {
-    foreach (array_reverse(array_keys($this->journeys[$journey_index]['steps'] ?? [])) as $step_index) {
-      $this->step($journey_index, $step_index);
+  public function journey($journey_id) {
+    $journey = $this->findJourneyById($journey_id);
+    foreach (array_reverse(array_keys($journey['steps'] ?? [])) as $step_index) {
+      $this->step($journey_id, $step_index);
     }
+  }
+  /**
+   * Return the config for the given journey id, or throw.
+   *
+   * @param string $journey_id
+   * @return Array
+   */
+  public function findJourneyById($journey_id) {
+    if (isset($this->config['journeys'][$journey_id])) {
+      return $this->config['journeys'][$journey_id];
+    }
+    throw new \Exception("Journey not found with id '$journey_id'");
   }
   /**
    * Process a single step.
    *
-   * @param int $journey_index
+   * @param string $journey_idx
    * @param int $step_index
    */
-  public function step($journey_index, $step_index) {
-    $step = $this->journeys[$journey_index]['steps'][$step_index];
+  public function step($journey_id, $step_index) {
+    $journey = $this->findJourneyById($journey_id);
+    $step = $journey['steps'][$step_index] ?? NULL;
     if (!$step) {
-      throw new \Exception("Invalid step index $step_index in journey $journey_index");
+      throw new \Exception("Invalid step index $step_index in journey $journey_id");
     }
 
     // Check: if there aren't any contacts, don't do anything!
-    $count = (int) CRM_Core_DAO::executeQuery("SELECT COUNT(*) FROM $this->table_name WHERE $this->column_name = %1", [1 => [$step['code'], 'String']])->fetchValue();
+    $count = (int) CRM_Core_DAO::executeQuery("
+        SELECT COUNT(*)
+        FROM $this->table_name ch
+        INNER JOIN civicrm_contact cc ON ch.entity_id = cc.id AND cc.is_deleted = 0
+        WHERE $this->column_name = %1",
+      [1 => [$step['code'], 'String']])
+      ->fetchValue();
     if (!$count) {
       return;
     }
 
     if ($step['send_mailing']) {
-      $this->sendMailing($step['send_mailing'], $this->journeys[$journey_index], $step['code']);
+      $this->sendMailing($step['send_mailing'], $journey, $step['code']);
     }
 
     if ($step['add_to_group']) {
-      $this->addToGroup($this->journeys[$journey_index]['mailing_group'], $step['code']);
+      $this->addToGroup($journey['mailing_group'], $step['code']);
     }
 
     $this->updateStep($step['code'], $step['next_code']);
@@ -247,13 +267,14 @@ class CRM_Chasse_Processor
     }
   }
 
-  public function getStep($journey_index, $step_code) {
-    foreach ($this->journeys[$journey_index]['steps'] ?? [] as $step) {
+  public function getStep($journey_id, $step_code) {
+    $journey = $this->findJourneyById($journey_id);
+    foreach ($journey['steps'] ?? [] as $step) {
       if ($step['code'] === $step_code) {
         return $step;
       }
     }
-    throw new \Exception("Step '$step_code' not found");
+    throw new \Exception("Step '$step_code' not found in journey '$journey_id'");
   }
   /**
    * Clear the journey field for contacts if they have been removed from the group.
@@ -264,7 +285,7 @@ class CRM_Chasse_Processor
   public function handleUnsubscribe($group_id, $contact_ids) {
 
     $steps_to_clear = [];
-    foreach ($this->journeys as $journey_index=>$journey) {
+    foreach ($this->config['journeys'] as $journey_id=>$journey) {
       if ($journey['mailing_group'] == $group_id) {
         foreach ($journey['steps'] as $step) {
           $steps_to_clear[] = $step['code'];
