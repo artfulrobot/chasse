@@ -23,16 +23,23 @@ function _civicrm_api3_chasse_Getstats_spec(&$spec) {
  */
 function civicrm_api3_chasse_Getstats($params) {
   require_once 'CRM/Core/BAO/CustomField.php';
-  $customFieldID = CRM_Core_BAO_CustomField::getCustomFieldID('chasse_step', 'chasse');
-  list($table, $column, $custom_group_id) = CRM_Core_BAO_CustomField::getTableColumnGroup($customFieldID);
-  $stats = CRM_Core_DAO::executeQuery(
-    "SELECT ch.$column AS `step`, COUNT(*) AS contacts
-     FROM $table ch
-     INNER JOIN civicrm_contact cc ON ch.entity_id = cc.id AND cc.is_deleted = 0
-     WHERE ch.$column IS NOT NULL
-     GROUP BY $column"
-  )->fetchMap('step', 'contacts');
-  foreach ($stats as &$_) { $_ = (int) $_; }
 
-  return civicrm_api3_create_success($stats, $params, 'Chasse', 'GetStats');
+  $chasse = new CRM_Chasse_Processor();
+
+  $stats = CRM_Core_DAO::executeQuery(
+    "SELECT ch.{$chasse->step_column_name} AS `step`,
+       COUNT(*) AS `all`,
+       SUM(COALESCE({$chasse->not_before_column_name}, '') = '' OR $chasse->not_before_column_name <= NOW() ) ready
+     FROM {$chasse->table_name} ch
+     INNER JOIN civicrm_contact cc ON ch.entity_id = cc.id AND cc.is_deleted = 0
+     WHERE ch.{$chasse->step_column_name} IS NOT NULL
+     GROUP BY {$chasse->step_column_name}
+     ORDER BY {$chasse->step_column_name}"
+  );
+  $result = [];
+  while ($stats->fetch()) {
+    $result[$stats->step] = ['all' => (int) $stats->all, 'ready' => (int) $stats->ready];
+  }
+
+  return civicrm_api3_create_success($result, $params, 'Chasse', 'GetStats');
 }

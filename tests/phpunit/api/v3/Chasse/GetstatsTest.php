@@ -15,7 +15,7 @@ class api_v3_Chasse_GetstatsTest extends api_v3_Chasse_Base
   /**
    * Check our SQL works for counting contacts per step.
    */
-  public function testGetstats() {
+  public function testGetstatsNormal() {
     $result = civicrm_api3('Chasse', 'Getstats', []);
     $this->assertEmpty($result['values']);
 
@@ -34,7 +34,24 @@ class api_v3_Chasse_GetstatsTest extends api_v3_Chasse_Base
       'id' => $this->contact_fixtures[2]['id'],
       $chasse_processor->step_api_field => 'S2',
     ]);
-    $this->assertStats([ 'S1' => 1, 'S2' => 2 ]);
+
+    // We're not using any not_before dates, so they should all be ready.
+    $this->assertStats(['S1' => ['ready' => 1, 'all' => 1], 'S2' => ['ready' => 2, 'all' => 2]]);
+
+    // change the not_before dates.
+    $yesterday = date('Y-m-d H:i:s', strtotime('yesterday'));
+    $tomorrow = date('Y-m-d H:i:s', strtotime('tomorrow'));
+    civicrm_api3('Contact', 'create', [
+      'id' => $this->contact_fixtures[0]['id'],
+      $chasse_processor->not_before_api_field => $yesterday, // should be ready
+    ]);
+    civicrm_api3('Contact', 'create', [
+      'id' => $this->contact_fixtures[2]['id'],
+      $chasse_processor->not_before_api_field => $tomorrow, // should NOT be ready
+    ]);
+
+    // Sanity check: we expect one contact ready in each step, and 2 contacts in all in step 2.
+    $this->assertStats(['S1' => ['ready' => 1, 'all' => 1], 'S2' => ['ready' => 1, 'all' => 2]]);
   }
 
   /**
@@ -63,7 +80,7 @@ class api_v3_Chasse_GetstatsTest extends api_v3_Chasse_Base
     civicrm_api3('Contact', 'delete', [
       'id' => $this->contact_fixtures[2]['id'],
     ]);
-    $this->assertStats([ 'S1' => 1, 'S2' => 1 ]);
+    $this->assertStats([ 'S1' => ['ready' => 1, 'all' => 1], 'S2' => ['ready' => 1, 'all' => 1] ]);
   }
 
 }

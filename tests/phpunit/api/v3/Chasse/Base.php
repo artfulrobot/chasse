@@ -46,6 +46,36 @@ class api_v3_Chasse_Base extends \PHPUnit_Framework_TestCase implements Headless
   }
 
   /**
+   * Assert that a contact is not in a CiviCRM group. (not smart groups)
+   *
+   * @param int $contact_id
+   * @param int $group_id
+   * @param string $message
+   */
+  public function assertNotInGroup($contact_id, $group_id, $message) {
+    $result = civicrm_api3('GroupContact', 'get', [
+        'contact_id' => $contact_id,
+        'group_id'   => $group_id,
+        'status'     => 'Added',
+      ]);
+    $this->assertEquals(0, $result['count'], $message);
+  }
+  /**
+   * Assert that a contact is in a CiviCRM group. (not smart groups)
+   *
+   * @param int $contact_id
+   * @param int $group_id
+   * @param string $message
+   */
+  public function assertInGroup($contact_id, $group_id, $message) {
+    $result = civicrm_api3('GroupContact', 'get', [
+        'contact_id' => $contact_id,
+        'group_id'   => $group_id,
+        'status'     => 'Added',
+      ]);
+    $this->assertEquals(1, $result['count'], $message);
+  }
+  /**
    * Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
    * See: https://github.com/civicrm/org.civicrm.testapalooza/blob/master/civi-test.md
    */

@@ -32,7 +32,6 @@ function civicrm_api3_chasse_Step($params) {
 
   $config = Civi::settings()->get('chasse_config');
   if (!isset($config['journeys'])) {
-    echo(json_encode($config, JSON_PRETTY_PRINT));
     throw new API_Exception("No Chassé journey plans are configured. Cannot process.");
   }
 

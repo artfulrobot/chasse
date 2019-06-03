@@ -120,6 +120,63 @@ When someone unsubscribes from the mailing group used by one of these mailings, 
 
 
 
+## Technical documentation
+
+### Configuration
+
+
+    {
+      next_id    : 124,
+      processing : <manual|scheduled>,
+      journeys   : {
+        journey1    : <journey_def>,
+        journey123  : <journey_def>,
+        <journeyid> : <journey_def>,
+        ...
+      },
+    }
+
+- `next_id` ensures new journeys have unique ids, e.g. here the next journey id
+  will be `journey124`
+
+- `journeys` is an array of journey definitions (see below), keyed by journey id
+
+- `processing` if `manual` (old behaviour) then Chasse's own cron will not
+  trigger for this job. Otherwise it will trigger, based on the schedule. @todo
+
+A `<journeydef>` looks like:
+
+     'name'          : 'Admin name of journey',
+     'id'            : 'journey1',
+     'mailing_group' : 123,
+     'mail_from'     : <from_id>
+     'steps'         : [ <stepdef>, <stepdef>, ... ]
+
+A `stepdef` looks like:
+
+    {
+        'code' : 'S1',
+        'next_code' : 'S2',
+        'send_mailing' : $this->msg_tpl_1,
+        'add_to_group' : '',
+        'interval' : <interval>
+    },
+
+- `code` is a unique code used by admins. Nb. it must be unique across all
+  journeys.
+
+- `next_code` is what to set a contact's step field to after processing this
+  step. It's either blank (no next step, end of journey) or the code of the
+  following step.
+
+- `send_mailing` is the message template ID of the mailing to send, or blank for
+  not to send a mailing.
+
+- `add_to_group` if truthy ('1') then after processing this step contacts are
+  added to the group that is specified in the journey's config.
+
+- `<interval>` is missing, blank, or an SQL valid interval like "7 DAY".
+
 ## Release notes
 
 ### v2
