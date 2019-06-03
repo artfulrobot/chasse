@@ -227,6 +227,58 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
   }
 
   /**
+   * Check intervals added as expected.
+   *
+   * - if the not_before value was NULL, it should use NOW.
+   * - if the not_before value was a date, it should go on that.
+   */
+  public function testPersonalTimelinesIntervalUpdates() {
+
+    $this->configureChasse();
+
+    $chasse_processor = new CRM_Chasse_Processor();
+
+    $yesterday = date('Y-m-d H:i:s', strtotime('yesterday'));
+    // Set a step for a couple of contacts.
+    civicrm_api3('Contact', 'create', [
+      'id'                                    => $this->contact_fixtures[0]['id'],
+      $chasse_processor->step_api_field       => 'S1',
+      $chasse_processor->not_before_api_field => $yesterday, // should be ready
+    ]);
+    civicrm_api3('Contact', 'create', [
+      'id'                                    => $this->contact_fixtures[1]['id'],
+      $chasse_processor->step_api_field       => 'S1',
+      $chasse_processor->not_before_api_field => NULL,
+    ]);
+    for ($i=0; $i<=1; $i++) {
+      Civi::log()->info("chassetest: Contact #$i is ID " . $this->contact_fixtures[$i]['id']);
+    }
+
+    // Sanity check: we expect one contact ready in each step, and 2 contacts in all in step 2.
+    $this->assertStats(['S1' => ['ready' => 2, 'all' => 2]]);
+
+    // Step the whole journey.
+    $result = civicrm_api3('Chasse', 'step', ['journey_id' => 'journey2']);
+    $this->assertEquals(0, $result['is_error']);
+    // What should have happend:
+    //             Originally       Expected
+    // Contact 0   S1, ready        S2, not ready
+    // Contact 1   S2, ready        S2, not ready
+    $this->assertStats(['S2' => ['ready' => 0, 'all' => 2]]);
+
+    // Check that the not_before date is correctly set for both of them.
+    // Contact 0
+    $result = civicrm_api3('Contact', 'getvalue', ['id' => $this->contact_fixtures[0]['id'], 'return' => $chasse_processor->not_before_api_field]);
+    // Expect it to be 2 days from yesterday, i.e. tomorrow.
+    $date = date('Y-m-d', strtotime($result));
+    $this->assertEquals(date('Y-m-d', strtotime('tomorrow')), $date, "Expected contact 0's new not_before to be tomorrow.");
+    // Contact 1:
+    $result = civicrm_api3('Contact', 'getvalue', ['id' => $this->contact_fixtures[1]['id'], 'return' => $chasse_processor->not_before_api_field]);
+    $date = date('Y-m-d', strtotime($result));
+    $this->assertEquals(date('Y-m-d', strtotime('today + 2 days')), $date, "Expected contact 0's new not_before to be day after tomorrow.");
+  }
+
+  /**
    * Fixture for config.
    */
   public function configureChasse() {
