@@ -183,3 +183,10 @@ function chasse_civicrm_navigationMenu(&$menu) {
   _chasse_civix_navigationMenu($menu);
 }
 
+
+/**
+ * Implements hook_civicrm_postJob
+ */
+function chasse_civicrm_postJob($job, $params, $result) {
+  $x=1;
+}

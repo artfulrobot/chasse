@@ -72,6 +72,53 @@ class CRM_Chasse_Processor
     throw new \Exception("Journey not found with id '$journey_id'");
   }
   /**
+   * Get journey ids of journeys that are scheduled to run now.
+   *
+   * @param $now timestamp as returned by time() or strtotime(). Used for tests only.
+   * @return Array
+   */
+  public function getScheduledJourneys($now=NULL) {
+    if ($now === NULL) {
+      $now = time();
+    }
+    $today = date('N', $now);
+    $todays_date = date('j', $now);
+    $time_now = date('H:i', $now);
+
+    $scheduled = [];
+    foreach ($this->config['journeys'] ?? [] as $journey_id => $journey) {
+      if (!isset($journey['schedule'])) {
+        // This journey does not have an automation schedule.
+        continue;
+      }
+      if (isset($journey['schedule'])) {
+        // This journey is a scheduled one.
+        $schedule = $journey['schedule'];
+
+        if (isset($schedule['days']) && !in_array($today, $schedule['days'])) {
+          // Not right day.
+          continue;
+        }
+
+        if (isset($schedule['day_of_month']) && $schedule['day_of_month'] != $todays_date) {
+          // Wrong day of month.
+          continue;
+        }
+
+        if (isset($schedule['time_earliest']) && $time_now < $schedule['time_earliest']) {
+          // Too early in the day.
+          continue;
+        }
+        if (isset($schedule['time_latest']) && $time_now > $schedule['time_latest']) {
+          // Too late in the day.
+          continue;
+        }
+      }
+      $scheduled[] = $journey_id;
+    }
+    return $scheduled;
+  }
+  /**
    * Process a single step.
    *
    * @param string $journey_id
@@ -294,36 +341,46 @@ class CRM_Chasse_Processor
 
   }
   /**
-   * Find out whether a journey is locked for processing.
+   * Are we already processing other jobs?
    *
-   * @param string journey_id
    * @return bool TRUE if lock exists.
    */
-  public function journeyIsLocked($journey_id) {
+  public function lockExists() {
     $locks = Civi::settings()->get('chasse_locks');
     if (!$locks) {
       $locks = [];
     }
-    return isset($locks[$journey_id]);
+    return isset($locks['global']);
   }
   /**
-   * Find out whether a journey is locked for processing.
+   * Try to obtain a lock.
    *
-   * @param string journey_id
    * @return bool TRUE if lock granted.
    */
-  public function attemptToLockJourney($journey_id) {
+  public function attemptToLock() {
     $locks = Civi::settings()->get('chasse_locks');
     if (!$locks) {
       $locks = [];
     }
-    if (isset($locks[$journey_id])) {
+    if (isset($locks['global'])) {
+      // Already locked.
       return FALSE;
     }
     // Looks ok to lock.
-    $locks[$journey_id] = date('Y-m-d H:i:s');
-    $locks = Civi::settings()->set('chasse_locks', $locks);
+    $locks['global'] = date('Y-m-d H:i:s');
+    Civi::settings()->set('chasse_locks', $locks);
     return TRUE;
+  }
+  /**
+   * Release lock.
+   */
+  public function releaseLock() {
+    $locks = Civi::settings()->get('chasse_locks');
+    if (!$locks) {
+      $locks = [];
+    }
+    unset($locks['global']);
+    Civi::settings()->set('chasse_locks', $locks);
   }
   /**
    * Populates the (hidden) group for this journey.

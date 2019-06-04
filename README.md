@@ -127,7 +127,6 @@ When someone unsubscribes from the mailing group used by one of these mailings, 
 
     {
       next_id    : 124,
-      processing : <manual|scheduled>,
       journeys   : {
         journey1    : <journey_def>,
         journey123  : <journey_def>,
@@ -141,16 +140,28 @@ When someone unsubscribes from the mailing group used by one of these mailings, 
 
 - `journeys` is an array of journey definitions (see below), keyed by journey id
 
-- `processing` if `manual` (old behaviour) then Chasse's own cron will not
-  trigger for this job. Otherwise it will trigger, based on the schedule. @todo
-
 A `<journeydef>` looks like:
 
      'name'          : 'Admin name of journey',
      'id'            : 'journey1',
      'mailing_group' : 123,
-     'mail_from'     : <from_id>
+     'mail_from'     : <from_id>,
+     'schedule'      : <schedule>,
      'steps'         : [ <stepdef>, <stepdef>, ... ]
+
+If `schedule` is not present, then this journey will NOT be run by the
+scheduler. i.e. original functionality.
+
+A `<schedule>` is an array of constraints, keyed by the type of constraint. Only
+the relevant constraints should be present. An empty array means run every time.
+
+    {
+        'days'          : [1, 3, 7], // ISO-8601 1=Monday, 7=Sunday.
+        'day_of_month'  : 1,
+        'time_earliest' : '09:00', // 24 hr format.
+        'time_latest'   : '23:00',
+    }
+
 
 A `stepdef` looks like:
 

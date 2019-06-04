@@ -297,7 +297,6 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
         ],
         'journey2' => [
           'name'          => 'Test 2',
-          'processing'    => 'scheduled', // ???
           'id'            => 'journey2',
           'mailing_group' => $this->mailing_group,
           'mail_from'     => $this->from_id,
