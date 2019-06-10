@@ -10,28 +10,30 @@
   <form name="myForm" crm-ui-id-scope>
 
     <!-- List journeys and allow adding -->
-    <div ng-repeat="(i, journey) in config || []" style="margin-bottom:3rem" >
+    <pre>{{config.journeys | json}}</pre>
+
+    <div ng-repeat="(id, journey) in config.journeys" style="margin-bottom:3rem" >
       <h2>Journey: {{journey.name}}</h2>
-      <div crm-ui-field="{name: 'journeyname'+i, title: ts('Journey Name')}">
-        <input crm-ui-id="{{ 'journeyname' + i }}" name="{{ 'journeyname' + i }}" ng-model="journey.name" required ng-change="setDirty()" />
+      <div crm-ui-field="{name: 'journeyname'+id, title: ts('Journey Name')}">
+        <input crm-ui-id="{{ 'journeyname' + id name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
       </div>
-      <div crm-ui-field="{name: 'journeygroup'+i, title: ts('Mailing Group')}">
-        <select crm-ui-id="{{ 'journeygroup' + i }}" name="{{ 'journeygroup' + i }}" ng-model="journey.mailing_group" required
+      <div crm-ui-field="{name: 'journeygroup'+id, title: ts('Mailing Group')}">
+        <select crm-ui-id="{{ 'journeygroup' + id }}" name="{{ 'journeygroup' + id }}" ng-model="journey.mailing_group" required
                 crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
                 ng-change="setDirty()"
           >
           <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
         </select>
       </div>
-      <div crm-ui-field="{name: 'journeyfrom'+i, title: ts('From address')}">
-        <select crm-ui-id="{{ 'journeyfrom' + i }}"  ng-model="journey.mail_from" required
+      <div crm-ui-field="{name: 'journeyfrom'+id, title: ts('From address')}">
+        <select crm-ui-id="{{ 'journeyfrom' + id }}"  ng-model="journey.mail_from" required
                 crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
                 ng-change="setDirty()"
           >
           <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
         </select>
       </div>
-      <a href ng-click="deleteJourney(i)" >Delete Journey</a><br/><br/>
+      <a href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
 
       <h3>Steps in {{journey.name}}</h3>
       <table>

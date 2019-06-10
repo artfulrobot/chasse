@@ -11,9 +11,17 @@
           chasseConfig: function(crmApi) {
             return crmApi('Setting', 'getvalue', { name: 'chasse_config' })
               .then( api_response => {
-                console.log(api_response);
-                return CRM._.isArray(api_response) ? api_response : [] ;
-                })
+                // We need the journeys item to be an object, not an array, but in the
+                // conversion from PHP's empty associative array to json, an empty object
+                // will be received as an empty array. So we need to get rid of that now
+                // for that case.
+
+                if (Array.isArray(api_response.journeys)) {
+                  api_response.journeys = {};
+                }
+                console.log('chasse_config', api_response);
+                return api_response;
+              })
           },
           mailingGroups: function(crmApi) {
             return crmApi('group', 'get', {
@@ -69,17 +77,21 @@
 
     $scope.addJourney = function addJourney() {
       $scope.dirty = true;
-      if (CRM._.isArray(chasseConfig)) {
-      chasseConfig.push({
+      var new_id = 'journey' + chasseConfig.next_id;
+      chasseConfig.next_id++;
+
+      chasseConfig.journeys[new_id] = {
         name: 'Untitled Journey',
+        id: new_id,
         steps: [],
-      });}
+      };
+      console.log("Added journey, config now:", chasseConfig);
     };
-    $scope.deleteJourney = function (i) {
+    $scope.deleteJourney = function (id) {
       $scope.dirty = true;
-      var journey = chasseConfig[i];
+      var journey = chasseConfig.journeys[id];
       if (confirm("Are you sure you want to delete journey called " + journey.name + "?")) {
-        chasseConfig.splice(i,1);
+        delete chasseConfig.journeys(id);
       }
     };
     $scope.moveStep = function addStep(journey, step_old, step_new) {
@@ -116,7 +128,7 @@
       ).then( () => $scope.dirty=false );
     };
 
-    if ((chasseConfig || []).length == 0) {
+    if (Object.keys(chasseConfig.journeys).length == 0) {
       $scope.addJourney();
     }
   });

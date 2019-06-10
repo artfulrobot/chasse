@@ -10,13 +10,22 @@
         resolve: {
           chasseStats: function(crmApi) {
             return crmApi('Chasse', 'getstats', {})
-              .then(result => result.values);
+              .then(result => {
+                // Convert empty array to empty object.
+                if (Array.isArray(result.values)) {
+                  result.values = {};
+                }
+                return result.values;
+              });
           },
           chasseConfig: function(crmApi) {
             return crmApi('Setting', 'getvalue', { name: 'chasse_config' })
               .then( api_response => {
-                console.log(api_response);
-                return CRM._.isArray(api_response) ? api_response : [] ;
+                if (Array.isArray(api_response.journeys)) {
+                  api_response.journeys = {};
+                }
+                console.log('chasse_config', api_response);
+                return api_response;
                 })
           },
           mailingGroups: function(crmApi) {
@@ -51,8 +60,25 @@
     var ts = $scope.ts = CRM.ts('chasse');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/chasse/Status'}); // See: templates/CRM/chasse/Status.hlp
 
+    // We need to scale barcharts to a percentage based on the max
+    // We also need to ensure each step has stats.
+    var max=1;
+    $scope.maxContacts = max;
+    console.log("chasseConfig", chasseConfig);
+    console.log("chasseStats", chasseStats);
+    for (var id of Object.keys(chasseConfig.journeys)) {
+      var journey = chasseConfig.journeys[id];
+      for (var i in journey.steps) {
+        if (! (journey.steps[i].code in chasseStats)) {
+          chasseStats[journey.steps[i].code] = { all:0, ready: 0 };
+        }
+        max = Math.max(max, chasseStats[journey.steps[i].code].all);
+      }
+    }
+
     $scope.stats = chasseStats;
     $scope.config = chasseConfig;
+
     var msg_tpl_lookup = {};
     for (i of msgTpls) msg_tpl_lookup[i.id] = i.msg_title;
     $scope.msg_tpls = msg_tpl_lookup;
@@ -62,6 +88,14 @@
     $scope.groups = groups;
 
     $scope.busy = false;
+
+    $scope.prettifyInterval = function(interval) {
+      var m = interval.match(/^(\d+ )(DAY|WEEK|MONTH)$/);
+      if (!m) {
+        return '';
+      }
+      return m[1] + m[2].toLowerCase() + ((m[1] == 1) ? '' : 's');
+    };
 
     $scope.runJourney = function (journey_index) {
       $scope.busy = true;
