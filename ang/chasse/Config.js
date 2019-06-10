@@ -69,7 +69,7 @@
     console.log("in controller chasseConfig is", chasseConfig);
     const orig = CRM._.clone(chasseConfig, true);
     $scope.dirty = false;
-    $scope.setDirty = function() { $scope.dirty = true;};
+    $scope.setDirty = function() {console.log("setDirty"); $scope.dirty = true;};
     $scope.config = chasseConfig;
     $scope.groups = mailingGroups;
     $scope.msg_tpls = msgTpls;
@@ -94,15 +94,44 @@
         delete chasseConfig.journeys(id);
       }
     };
-    $scope.moveStep = function addStep(journey, step_old, step_new) {
+
+    /**
+     * Enforce the step sequence in the config.
+     *
+     * Nb. storing the next_code in the step item when it always just points to
+     * the next step is redundancy.
+     *
+     * The reason for it is that originally it was envisaged that people might
+     * want journeys to be non-linear; have branches etc. However the UI
+     * improvements/simplifications in v2 remove this possibility - it's an
+     * edge use-case anyway so better to keep the 90% of users who won't want
+     * it happy. But I've not removed the next_step code from config so that if
+     * we want to enhance the UI too allow non-linear journeys in future, we
+     * can. And therefore we have this fix...
+     *
+     * Nb. this is only performed on Save. Ideally it would be called as a
+     * watch expression...
+     */
+    $scope.redoNextSteps = function(steps) {
+      for (var i=0; i<steps.length - 1; i++) {
+        steps[i].next_code = steps[i+1].code;
+      }
+      if (steps.length > 0) {
+        steps[steps.length-1].next_code = '';
+      }
+    }
+
+    $scope.moveStep = function moveStep(journey, step_old, step_new) {
       $scope.dirty = true;
       var tmp = journey.steps.splice(step_old,1)[0];
       journey.steps.splice(step_new, 0, tmp);
+      $scope.redoNextSteps(journey.steps);
     };
-    $scope.deleteStep = function addStep(journey, step_idx) {
+    $scope.deleteStep = function deleteStep(journey, step_idx) {
       if (confirm("Delete this step, sure?")) {
         $scope.dirty = true;
         journey.steps.splice(step_idx, 1);
+        $scope.redoNextSteps(journey.steps);
       }
     };
     $scope.addStep = function addStep(journey) {
@@ -120,6 +149,11 @@
     };
 
     $scope.save = function save() {
+      // Redo journey steps, just in case.
+      for (id of Object.keys(chasseConfig.journeys)) {
+        $scope.redoNextSteps(chasseConfig.journeys[id].steps);
+      }
+
       return crmStatus(
         // Status messages. For defaults, just use "{}"
         {start: ts('Saving...'), success: ts('Saved')},
@@ -131,6 +165,39 @@
     if (Object.keys(chasseConfig.journeys).length == 0) {
       $scope.addJourney();
     }
-  });
+  })
+  .directive('intervalSelector', function() {
+    return {
+      restrict: 'E', // only <interval-selector/>
+      scope: {
+        string: '=interval'
+      },
+      templateUrl: '~/chasse/intervalSelector.html',
+      controller: ['$scope', function intervalSelectorController($scope) {
+        if (typeof($scope.string) === 'undefined') {
+          $scope.string = '';
+        }
+        var m = $scope.string.match(/^(\d+) (DAY|WEEK|MONTH)$/);
+        if (m) {
+          $scope.qty = m[1];
+          $scope.unit = m[2];
+        }
+        else {
+          $scope.qty = 1; // sensible default.
+          $scope.unit = 'time';
+        }
+
+        $scope.updateString = function() {
+          if ($scope.unit === 'time') {
+            $scope.string = '';
+          }
+          else {
+            $scope.string = $scope.qty + ' ' + $scope.unit;
+          }
+        };
+      }]
+    }
+  })
+  ;
 
 })(angular, CRM.$, CRM._);

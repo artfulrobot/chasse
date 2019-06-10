@@ -39,15 +39,14 @@
       <table>
         <thead><tr>
           <th>Code</th>
-          <th>Next Code</th>
           <th>Add to Group</th>
           <th>Send Mailing</th>
+          <th>Delay next step</th>
           <th>Re-order</th>
         </tr></thead>
         <tbody>
           <tr ng-repeat="(step_offset, step) in journey.steps || []">
-            <td><input ng-model="step.code" required ng-change="setDirty()" /></td>
-            <td><input ng-model="step.next_code" ng-change="setDirty()" /></td>
+            <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 /></td>
             <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
             <td>
               <select ng-model="step.send_mailing"
@@ -57,6 +56,9 @@
                 <option value="">(None)</option>
                 <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
               </select>
+            </td>
+            <td>
+              <interval-selector interval="step.interval" ></interval-selector>
             </td>
             <td>
               <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
@@ -70,7 +72,7 @@
       <a href ng-click="addStep(journey)">Add step</a>
     </div>
     <br />
-    <button ng-click="save()">{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>
+    <button ng-click="save()" >{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>
   </form>
 
 </div>
