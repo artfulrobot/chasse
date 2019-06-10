@@ -1,0 +1,23 @@
+<div class="chasse-schedule-editor">
+  <label><input type="checkbox" ng-model="d.useSchedule"
+                                ng-change="updateSchedule()"
+    /> Use Automatic Schedule</label>
+
+  <div ng-if="d.useSchedule">
+    Run every
+    <div ng-repeat="(i, dayname) in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']"
+         >
+         <label><input type="checkbox" ng-model="d.days[i]" ng-change="updateSchedule()" /> {{dayname}}</label>
+    </div>
+    <label >Run every month on the
+      <input type="text" size="2" ng-model="d.dayOfMonth" ng-change="updateSchedule()"  />
+      DOM: {{d.dayOfMonth}}
+    </label>
+    <label >Don't run before
+      <input type="text" size="5" ng-model="d.timeEarliest" ng-change="updateSchedule()" />
+    </label>
+    <label >Don't run after
+      <input type="text" size="5" ng-model="d.timeLatest" ng-change="updateSchedule()" />
+    </label>
+  </div>
+</div>

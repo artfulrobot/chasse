@@ -198,6 +198,81 @@
       }]
     }
   })
+  .directive('scheduleEditor', function() {
+    return {
+      restrict: 'E', // only <schedule-editor/>
+      scope: {
+        journey: '=journey'
+      },
+      templateUrl: '~/chasse/scheduleEditor.html',
+      controller: ['$scope', function scheduleEditorController($scope) {
+
+        var schedule = $scope.journey.schedule;
+
+        // Set up empty vars.
+        $scope.d = {
+          useSchedule  : false,
+          days         : [0, 0, 0, 0, 0, 0, 0],
+          dayOfMonth   : '',
+          timeEarliest : '',
+          timeLatest   : '',
+        };
+
+        // Unpack the schedule
+        if (typeof(schedule) !== 'undefined') {
+          console.log("unpack", schedule);
+          $scope.d.useSchedule = true;
+          // There is a schedule defined, parse it.
+          if ('days' in schedule) {
+            for (var i=0; i<7; i++) {
+              $scope.d.days[i] = schedule.days.indexOf((i+1) + '') > -1;
+            }
+          }
+          if ('day_of_month' in schedule) {
+            $scope.d.dayOfMonth = schedule.day_of_month;
+          }
+          if ('time_earliest' in schedule) {
+            $scope.d.timeEarliest = schedule.time_earliest;
+          }
+          if ('time_latest' in schedule) {
+            $scope.d.timeLatest = schedule.time_latest;
+          }
+        }
+
+        // Repack the schedule.
+        $scope.updateSchedule = function() {
+          if (!$scope.d.useSchedule) {
+            // Remove schedule.
+            delete($scope.journey.schedule);
+            return;
+          }
+          console.log('update sched', $scope.d);
+          // Create schedule.
+          $scope.journey.schedule = {};
+
+          // Week days.
+          var days = [];
+          for (var i=0; i<7; i++) {
+            if ($scope.d.days[i]) {
+              days.push(i+1);
+            }
+          }
+          if (days.length) {
+            $scope.journey.schedule.days = days;
+          }
+          if ($scope.d.dayOfMonth) {
+            $scope.journey.schedule.day_of_month = $scope.d.dayOfMonth;
+          }
+          if ($scope.d.timeEarliest) {
+            $scope.journey.schedule.time_earliest = $scope.d.timeEarliest;
+          }
+          if ($scope.d.timeLatest) {
+            $scope.journey.schedule.time_latest = $scope.d.timeLatest;
+          }
+        };
+      }]
+    }
+  })
   ;
 
 })(angular, CRM.$, CRM._);

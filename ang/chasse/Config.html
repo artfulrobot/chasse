@@ -15,8 +15,10 @@
     <div ng-repeat="(id, journey) in config.journeys" style="margin-bottom:3rem" >
       <h2>Journey: {{journey.name}}</h2>
       <div crm-ui-field="{name: 'journeyname'+id, title: ts('Journey Name')}">
-        <input crm-ui-id="{{ 'journeyname' + id name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
+        <input crm-ui-id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
       </div>
+
+      <!-- Select mailing group -->
       <div crm-ui-field="{name: 'journeygroup'+id, title: ts('Mailing Group')}">
         <select crm-ui-id="{{ 'journeygroup' + id }}" name="{{ 'journeygroup' + id }}" ng-model="journey.mailing_group" required
                 crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
@@ -25,6 +27,9 @@
           <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
         </select>
       </div>
+
+      <schedule-editor journey="journey"/>
+
       <div crm-ui-field="{name: 'journeyfrom'+id, title: ts('From address')}">
         <select crm-ui-id="{{ 'journeyfrom' + id }}"  ng-model="journey.mail_from" required
                 crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
