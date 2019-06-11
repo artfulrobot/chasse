@@ -1,5 +1,5 @@
-<div class="crm-container">
-  <h1 crm-page-title>{{ts('Chassé: Plan Journeys')}}</h1>
+<div class="crm-container" id="bootstrap-theme">
+  <h1 crm-page-title>{{ ts('Edit Chassé Journey: %name', { name: journey.name }) }}</h1>
   <p><a href="#/chasse" >Chassé Overview</a></p>
 
   <div ng-show="dirty" style="background-color:hsl(50deg, 70%, 90%);padding:1rem;border:solid 1px hsl(50deg, 70%,70%);margin-bottom:1rem;">
@@ -10,71 +10,97 @@
   <form name="myForm" crm-ui-id-scope>
 
     <!-- List journeys and allow adding -->
-    <pre>{{config.journeys | json}}</pre>
 
-    <div ng-repeat="(id, journey) in config.journeys" style="margin-bottom:3rem" >
-      <h2>Journey: {{journey.name}}</h2>
-      <div crm-ui-field="{name: 'journeyname'+id, title: ts('Journey Name')}">
-        <input crm-ui-id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Journey: {{journey.name}}</h2>
       </div>
+      <div class="panel-body">
 
-      <!-- Select mailing group -->
-      <div crm-ui-field="{name: 'journeygroup'+id, title: ts('Mailing Group')}">
-        <select crm-ui-id="{{ 'journeygroup' + id }}" name="{{ 'journeygroup' + id }}" ng-model="journey.mailing_group" required
-                crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
-                ng-change="setDirty()"
-          >
-          <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
-        </select>
+        <div class="col-lg-12">
+          <div class="form-horizontal">
+
+            <!-- journey name -->
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
+              <div class="col-sm-10">
+                <input id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
+              </div>
+            </div>
+
+            <!-- Select mailing group -->
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="{{ 'journeygroup' + id }}" >Mailing Group</label>
+              <div class="col-sm-10" >
+                <select xid="{{ 'journeygroup' + id }}"
+                        ng-model="journey.mailing_group" required
+                        ng-change="setDirty()"
+                        crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
+                  >
+                  <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- from address -->
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="{{ 'journeyfrom' + id }}" >From address</label>
+              <div class="col-sm-10">
+                  <select
+                    xid="{{ 'journeyfrom' + id }}" 
+                    ng-model="journey.mail_from" required
+                    ng-change="setDirty()"
+                    crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
+                  >
+                    <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
+                  </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- schedule editor -->
+          <schedule-editor journey="journey"/>
+
+        </div>
+
+        <a href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
+
+        <h3>Steps in {{journey.name}}</h3>
+        <table>
+          <thead><tr>
+            <th>Code</th>
+            <th>Add to Group</th>
+            <th>Send Mailing</th>
+            <th>Delay next step</th>
+            <th>Re-order</th>
+          </tr></thead>
+          <tbody>
+            <tr ng-repeat="(step_offset, step) in journey.steps || []">
+              <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 /></td>
+              <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
+              <td>
+                <select ng-model="step.send_mailing"
+                   ng-change="setDirty()"
+                   crm-ui-select="{width: '35em', allowClear:true}"
+                >
+                  <option value="">(None)</option>
+                  <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
+                </select>
+              </td>
+              <td>
+                <interval-selector interval="step.interval" ></interval-selector>
+              </td>
+              <td>
+                <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
+                <button ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
+                <button ng-click="deleteStep(journey, step_offset)"  >Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
+        <a href ng-click="addStep(journey)">Add step</a>
       </div>
-
-      <schedule-editor journey="journey"/>
-
-      <div crm-ui-field="{name: 'journeyfrom'+id, title: ts('From address')}">
-        <select crm-ui-id="{{ 'journeyfrom' + id }}"  ng-model="journey.mail_from" required
-                crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
-                ng-change="setDirty()"
-          >
-          <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
-        </select>
-      </div>
-      <a href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
-
-      <h3>Steps in {{journey.name}}</h3>
-      <table>
-        <thead><tr>
-          <th>Code</th>
-          <th>Add to Group</th>
-          <th>Send Mailing</th>
-          <th>Delay next step</th>
-          <th>Re-order</th>
-        </tr></thead>
-        <tbody>
-          <tr ng-repeat="(step_offset, step) in journey.steps || []">
-            <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 /></td>
-            <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
-            <td>
-              <select ng-model="step.send_mailing"
-                 ng-change="setDirty()"
-                 crm-ui-select="{width: '35em', allowClear:true}"
-              >
-                <option value="">(None)</option>
-                <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
-              </select>
-            </td>
-            <td>
-              <interval-selector interval="step.interval" ></interval-selector>
-            </td>
-            <td>
-              <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
-              <button ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
-              <button ng-click="deleteStep(journey, step_offset)"  >Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
-      <a href ng-click="addStep(journey)">Add step</a>
     </div>
     <br />
     <button ng-click="save()" >{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>

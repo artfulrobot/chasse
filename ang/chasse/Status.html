@@ -1,4 +1,4 @@
-<div class="crm-container">
+<div class="crm-container" id="bootstrap-theme">
   <h1 crm-page-title>Chassé Journey Status</h1>
 
   <div style="margin-bottom:2rem;text-align:center; padding:2rem;background:hsl(40deg, 80%, 95%);" ng-show="Array.isArray(config.journeys)" >
@@ -6,46 +6,59 @@
   </div>
   <p><a href="#/chasse/config" >Edit Chassé Journey Plans</a> | <a href ng-click="reload()">Refresh status</a></p>
 
-  <div ng-repeat="(id, journey) in config.journeys || []" style="margin-bottom:3rem" >
-    <h2>Journey: {{journey.name}}</h2>
+  <div
+    ng-repeat="(id, journey) in config.journeys || []"
+    class="panel panel-default"
+    style="margin-bottom:3rem"
+    >
+    <div class="panel-heading" >
+      <div class="chasse-panel-with-actions" >
+        <h2 class="panel-title">Journey: {{journey.name}}</h2>
+        <div class="chasse-panel-actions">
+          <a href="#chasse/config/{{id}}" class="btn btn-sm btn-primary" >Edit</a>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body" >
+      <div class="chasse-diagram">
+        <div ng-repeat="(step_offset, step) in journey.steps || []" class="chasse-step-container">
+          <div class="chasse-step-name">STEP {{ step.code }}</div>
 
-    <div class="chasse-diagram">
-      <div ng-repeat="(step_offset, step) in journey.steps || []" class="chasse-step-container">
-        <div class="chasse-step-name">STEP {{ step.code }}</div>
-
-        <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="step.interval">
-          <div class="chasse-diagram-bar-container">
-            <div class="chasse-bar" style="height:{{ (stats[step.code].all - stats[step.code].ready)  / maxContacts * 100"></div>
-            <div class="chasse-label" >{{ stats[step.code].all - stats[step.code].ready }}</div>
-          </div>
-          <div class="chasse-diagram-action-container">
-            <div class="chasse-next" >
-              <div ng-if="step.interval">
-                <div class="ui-icon fa-clock-o"></div>
-                {{ prettifyInterval(step.interval) }}
+          <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="step.interval">
+            <div class="chasse-diagram-bar-container">
+              <div class="chasse-bar" style="height:{{ (stats[step.code].all - stats[step.code].ready)  / maxContacts * 100"></div>
+              <div class="chasse-label" >{{ stats[step.code].all - stats[step.code].ready }}</div>
+            </div>
+            <div class="chasse-diagram-action-container">
+              <div class="chasse-next" >
+                <div ng-if="step.interval">
+                  <div class="ui-icon fa-clock-o"></div>
+                  {{ prettifyInterval(step.interval) }}
+                </div>
               </div>
             </div>
-          </div>
-        </div><div class="chasse-diagram-step-inner {{ step.interval ? 'half' : ''}}">
-          <div class="chasse-diagram-bar-container">
-            <div class="chasse-bar" style="height:{{ stats[step.code].ready / maxContacts * 100 }}%"></div>
-            <div class="chasse-label" >{{ stats[step.code].ready }}</div>
-          </div>
-          <div class="chasse-diagram-action-container">
-            <div class="chasse-next" >
-              <div ng-if="step.send_mailing" title="{{msg_tpls[step.send_mailing]}}">
-                <div class="ui-icon fa-envelope"></div>
-              </div>
-              <div ng-if="step.add_to_group" title="{{groups[journey.mailing_group]}}">
-                <div class="ui-icon fa-user-plus"></div>
+          </div><div class="chasse-diagram-step-inner {{ step.interval ? 'half' : ''}}">
+            <div class="chasse-diagram-bar-container">
+              <div class="chasse-bar" style="height:{{ stats[step.code].ready / maxContacts * 100 }}%"></div>
+              <div class="chasse-label" >{{ stats[step.code].ready }}</div>
+            </div>
+            <div class="chasse-diagram-action-container">
+              <div class="chasse-next" >
+                <div ng-if="step.send_mailing" title="{{msg_tpls[step.send_mailing]}}">
+                  <div class="ui-icon fa-envelope"></div>
+                </div>
+                <div ng-if="step.add_to_group" title="{{groups[journey.mailing_group]}}">
+                  <div class="ui-icon fa-user-plus"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </div><!--/chasse-diagram-->
+      <button class="btn btn-danger-outline" ng-click="runJourney(i)" ng-disabled="busy">Process Now</button>
+    </div><!--/panel-body-->
+  </div><!--/panel-->
 
-    </div>
-
-    <button ng-click="runJourney(i)" ng-disabled="busy">Process Now</button>
-  </div>
+  <br />
+  <a class="btn btn-primary" href="#chasse/config/new" >Add New Journey</a>
 </div>

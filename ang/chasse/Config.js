@@ -1,7 +1,7 @@
 (function(angular, $, _) {
 
   angular.module('chasse').config(function($routeProvider) {
-      $routeProvider.when('/chasse/config', {
+      $routeProvider.when('/chasse/config/:id', {
         controller: 'ChasseConfig',
         templateUrl: '~/chasse/Config.html',
 
@@ -59,7 +59,7 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('chasse').controller('ChasseConfig', function($scope, crmApi, crmStatus, crmUiHelp,
+  angular.module('chasse').controller('ChasseConfig', function($route, $scope, crmApi, crmStatus, crmUiHelp,
     chasseConfig, mailingGroups, msgTpls, mailFroms) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('chasse');
@@ -86,7 +86,17 @@
         steps: [],
       };
       console.log("Added journey, config now:", chasseConfig);
+      $scope.journey = chasseConfig.journeys[new_id];
+      $scope.id = new_id;
     };
+    if ($route.current.params.id === 'new') {
+      $scope.addJourney();
+    }
+    else {
+      $scope.journey = chasseConfig.journeys[$route.current.params.id];
+      $scope.id = $route.current.params.id;
+    }
+
     $scope.deleteJourney = function (id) {
       $scope.dirty = true;
       var journey = chasseConfig.journeys[id];
