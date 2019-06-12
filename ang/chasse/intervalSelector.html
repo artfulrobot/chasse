@@ -1,7 +1,13 @@
-<input ng-model="qty" ng-change="updateString()" ng-disabled="unit === 'time'" size="2" />
-<select ng-model="unit" ng-change="updateString()" >
-  <option value="time">(no delay)</option>
-  <option value="DAY">day(s)</option>
-  <option value="WEEK">week(s)</option>
-  <option value="MONTH">month(s)</option>
-</select>
+<div class="row">
+  <div class="col-sm-6">
+    <input ng-model="qty" ng-change="updateString()" ng-disabled="unit === 'time'" size="2" class="form-control" />
+  </div>
+  <div class="col-sm-6">
+    <select ng-model="unit" ng-change="updateString()" class="form-control" >
+      <option value="time">(no delay)</option>
+      <option value="DAY">day(s)</option>
+      <option value="WEEK">week(s)</option>
+      <option value="MONTH">month(s)</option>
+    </select>
+  </div>
+</div>

@@ -180,7 +180,8 @@
     return {
       restrict: 'E', // only <interval-selector/>
       scope: {
-        string: '=interval'
+        string: '=interval',
+        setDirty: '&' // This means it's an event that the directive can fire.
       },
       templateUrl: '~/chasse/intervalSelector.html',
       controller: ['$scope', function intervalSelectorController($scope) {
@@ -204,6 +205,7 @@
           else {
             $scope.string = $scope.qty + ' ' + $scope.unit;
           }
+          $scope.setDirty({ev: {}});
         };
       }]
     }
@@ -212,7 +214,8 @@
     return {
       restrict: 'E', // only <schedule-editor/>
       scope: {
-        journey: '=journey'
+        journey: '=journey',
+        setDirty: '&' // This means it's an event that the directive can fire.
       },
       templateUrl: '~/chasse/scheduleEditor.html',
       controller: ['$scope', function scheduleEditorController($scope) {
@@ -254,32 +257,59 @@
           if (!$scope.d.useSchedule) {
             // Remove schedule.
             delete($scope.journey.schedule);
-            return;
           }
-          console.log('update sched', $scope.d);
-          // Create schedule.
-          $scope.journey.schedule = {};
+          else {
+            // Create schedule from scratch.
+            $scope.journey.schedule = {};
 
-          // Week days.
-          var days = [];
-          for (var i=0; i<7; i++) {
-            if ($scope.d.days[i]) {
-              days.push(i+1);
+            // Week days.
+            var days = [];
+            for (var i=0; i<7; i++) {
+              if ($scope.d.days[i]) {
+                days.push(i+1);
+              }
+            }
+            if (days.length) {
+              $scope.journey.schedule.days = days;
+            }
+            if ($scope.d.dayOfMonth) {
+              $scope.journey.schedule.day_of_month = $scope.d.dayOfMonth;
+            }
+            if ($scope.d.timeEarliest) {
+              $scope.journey.schedule.time_earliest = $scope.d.timeEarliest;
+            }
+            if ($scope.d.timeLatest) {
+              $scope.journey.schedule.time_latest = $scope.d.timeLatest;
             }
           }
-          if (days.length) {
-            $scope.journey.schedule.days = days;
-          }
-          if ($scope.d.dayOfMonth) {
-            $scope.journey.schedule.day_of_month = $scope.d.dayOfMonth;
-          }
-          if ($scope.d.timeEarliest) {
-            $scope.journey.schedule.time_earliest = $scope.d.timeEarliest;
-          }
-          if ($scope.d.timeLatest) {
-            $scope.journey.schedule.time_latest = $scope.d.timeLatest;
-          }
+          $scope.setDirty({ev: {}});
         };
+
+        $scope.th = function() {
+          if (!$scope.d.dayOfMonth) {
+            return '';
+          }
+          const dom = $scope.d.dayOfMonth;
+          const last_digit = dom.substr(-1);
+          if (last_digit === '1' && dom != '11') {
+            return 'st';
+          }
+          if (last_digit === '2' && dom != '12') {
+            return 'nd';
+          }
+          if (last_digit === '3') {
+            return 'rd';
+          }
+          return 'th';
+        };
+        $scope.validTime = function(t) {
+          if (!t) return true;
+          if (t.match(/[012][0-3]:[0-5][0-9]$/)) {
+            return true;
+          }
+          return false;
+        }
+
       }]
     }
   })

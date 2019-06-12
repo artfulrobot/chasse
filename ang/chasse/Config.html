@@ -1,13 +1,16 @@
 <div class="crm-container" id="bootstrap-theme">
   <h1 crm-page-title>{{ ts('Edit Chassé Journey: %name', { name: journey.name }) }}</h1>
-  <p><a href="#/chasse" >Chassé Overview</a></p>
+  <p><a href="#/chasse" class="btn btn-secondary-outline btn-sm">Back to Chassé Overview</a></p>
 
-  <div ng-show="dirty" style="background-color:hsl(50deg, 70%, 90%);padding:1rem;border:solid 1px hsl(50deg, 70%,70%);margin-bottom:1rem;">
+  <div ng-show="dirty" class="alert alert-warning" >
     <strong>There are unsaved changes</strong>
-    <button ng-click="save()">{{ts('Save')}}</button>
+    <button class="btn btn-primary btn-sm" ng-click="save()"
+           ng-disabled="chasseConfigForm.$invalid"
+      >{{ts('Save')}}</button>
+    <span ng-if="chasseConfigForm.$invalid" >Correct errors before saving</span>
   </div>
 
-  <form name="myForm" crm-ui-id-scope>
+  <form name="chasseConfigForm" crm-ui-id-scope>
 
     <!-- List journeys and allow adding -->
 
@@ -16,57 +19,57 @@
         <h2 class="panel-title">Journey: {{journey.name}}</h2>
       </div>
       <div class="panel-body">
-
-        <div class="col-lg-12">
-          <div class="form-horizontal">
-
-            <!-- journey name -->
-            <div class="form-group">
-              <label class="col-sm-2 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
-              <div class="col-sm-10">
-                <input id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()" />
-              </div>
+        <div class="">
+          <!-- journey name -->
+          <div class="row form-group">
+            <label class="col-sm-2 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
+            <div class="col-sm-10">
+              <input id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()"  class="form-control" />
             </div>
+          </div>
 
-            <!-- Select mailing group -->
-            <div class="form-group">
-              <label class="col-sm-2 control-label" for="{{ 'journeygroup' + id }}" >Mailing Group</label>
-              <div class="col-sm-10" >
-                <select xid="{{ 'journeygroup' + id }}"
-                        ng-model="journey.mailing_group" required
-                        ng-change="setDirty()"
-                        crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
-                  >
-                  <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
+          <!-- Select mailing group -->
+          <div class="row form-group">
+            <label class="col-sm-2 control-label" for="{{ 'journeygroup' + id }}" >Mailing Group</label>
+            <div class="col-sm-10" >
+              <select xid="{{ 'journeygroup' + id }}"
+                      ng-model="journey.mailing_group" required
+                      ng-change="setDirty()"
+                      crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
+                >
+                <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- from address -->
+          <div class="row form-group">
+            <label class="col-sm-2 control-label" for="{{ 'journeyfrom' + id }}" >From address</label>
+            <div class="col-sm-10">
+                <select
+                  xid="{{ 'journeyfrom' + id }}" 
+                  ng-model="journey.mail_from" required
+                  ng-change="setDirty()"
+                  crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
+                >
+                  <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
                 </select>
-              </div>
-            </div>
-
-            <!-- from address -->
-            <div class="form-group">
-              <label class="col-sm-2 control-label" for="{{ 'journeyfrom' + id }}" >From address</label>
-              <div class="col-sm-10">
-                  <select
-                    xid="{{ 'journeyfrom' + id }}" 
-                    ng-model="journey.mail_from" required
-                    ng-change="setDirty()"
-                    crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
-                  >
-                    <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
-                  </select>
-              </div>
             </div>
           </div>
 
           <!-- schedule editor -->
-          <schedule-editor journey="journey"/>
+          <schedule-editor journey="journey" set-dirty="setDirty()"/>
 
-        </div>
+        </div><!-- empty div - why? -->
+      </div><!--/panel-body-->
+    </div><!--/panel-->
 
-        <a href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
-
-        <h3>Steps in {{journey.name}}</h3>
-        <table>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">Steps in: {{journey.name}}</h2>
+      </div>
+      <div class="panel-body">
+        <table class="table">
           <thead><tr>
             <th>Code</th>
             <th>Add to Group</th>
@@ -76,7 +79,7 @@
           </tr></thead>
           <tbody>
             <tr ng-repeat="(step_offset, step) in journey.steps || []">
-              <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 /></td>
+              <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 class="form-control"/></td>
               <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
               <td>
                 <select ng-model="step.send_mailing"
@@ -88,22 +91,28 @@
                 </select>
               </td>
               <td>
-                <interval-selector interval="step.interval" ></interval-selector>
+                <interval-selector interval="step.interval" set-dirty="setDirty()"></interval-selector>
               </td>
               <td>
-                <button ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
-                <button ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
-                <button ng-click="deleteStep(journey, step_offset)"  >Delete</button>
+                <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
+                <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
+                <button class="btn btn-sm btn-secondary-outline" ng-click="deleteStep(journey, step_offset)"  >Delete</button>
               </td>
             </tr>
           </tbody>
         </table>
         <p>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
-        <a href ng-click="addStep(journey)">Add step</a>
-      </div>
-    </div>
+        <a class="btn btn-primary btn-sm" href ng-click="addStep(journey)">Add step</a>
+      </div><!--/panel-body-->
+    </div><!--/panel-->
     <br />
-    <button ng-click="save()" >{{ts('Save')}}</button> &nbsp; <a href ng-click="addJourney()" >Create New Journey</a>
+    <button class="btn btn-primary" ng-click="save()"
+           ng-disabled="chasseConfigForm.$invalid"
+      >{{ts('Save')}}</button>
+    <span ng-if="chasseConfigForm.$invalid" >Correct errors before saving</span>
+    <!--<a href ng-click="addJourney()" >Create New Journey</a>-->
+    <br/><br/>
+    <a class="btn btn-danger-outline btn-xs" href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
   </form>
 
 </div>

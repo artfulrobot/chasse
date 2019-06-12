@@ -113,3 +113,11 @@
   margin-top:-0.5rem;
 }
 
+.chasse-schedule-day {
+  display:flex;
+  flex-wrap: wrap;
+}
+.chasse-schedule-day>span {
+  flex: 1 0 auto;
+  margin-right: 1rem;
+}
