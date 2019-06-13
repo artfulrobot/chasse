@@ -43,12 +43,24 @@ function civicrm_api3_chasse_Processjourneyschedules($params) {
 
   // Process each journey now.
   $result = ['journeys' => []];
+  $errors = FALSE;
   foreach ($journeys_to_run as $journey_id) {
-    $result['journeys'][$journey_id] = $chasse_processor->journey($journey_id);
+    try {
+      $result['journeys'][$journey_id] = $chasse_processor->journey($journey_id);
+    }
+    catch (\Exception $e) {
+      // Catch all exceptions so we can do other journeys.
+      $result['journeys'][$journey_id] = ['error' => get_class($e) . ': ' . $e->getMessage(), 'trace' => $e->getTraceAsString()];
+      $errors = TRUE;
+    }
   }
 
   // Release lock.
   $chasse_processor->releaseLock();
+
+  if ($errors) {
+    throw new API_Exception("Chasse.Processjourneyschedules ran with errors", 'journey_errors', $result);
+  }
 
   return civicrm_api3_create_success($result, $params, 'Chasse', 'Processjourneyschedules');
 }

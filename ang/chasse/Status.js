@@ -9,14 +9,7 @@
         // under "resolve".
         resolve: {
           chasseStats: function(crmApi) {
-            return crmApi('Chasse', 'getstats', {})
-              .then(result => {
-                // Convert empty array to empty object.
-                if (Array.isArray(result.values)) {
-                  result.values = {};
-                }
-                return result.values;
-              });
+            return crmApi('Chasse', 'getstats', {});
           },
           chasseConfig: function(crmApi) {
             return crmApi('Setting', 'getvalue', { name: 'chasse_config' })
@@ -62,21 +55,30 @@
 
     // We need to scale barcharts to a percentage based on the max
     // We also need to ensure each step has stats.
-    var max=1;
-    $scope.maxContacts = max;
-    console.log("chasseConfig", chasseConfig);
-    console.log("chasseStats", chasseStats);
-    for (var id of Object.keys(chasseConfig.journeys)) {
-      var journey = chasseConfig.journeys[id];
-      for (var i in journey.steps) {
-        if (! (journey.steps[i].code in chasseStats)) {
-          chasseStats[journey.steps[i].code] = { all:0, ready: 0 };
-        }
-        max = Math.max(max, chasseStats[journey.steps[i].code].all);
-      }
-    }
 
-    $scope.stats = chasseStats;
+    function preProcessStats(result) {
+      // Convert empty array to empty object.
+      if (Array.isArray(result.values)) {
+        result.values = {};
+      }
+      var max=1;
+      for (var id of Object.keys(chasseConfig.journeys)) {
+        var journey = chasseConfig.journeys[id];
+        for (var i in journey.steps) {
+          if (! (journey.steps[i].code in result.values)) {
+            result.values[journey.steps[i].code] = { all:0, ready: 0 };
+          }
+          max = Math.max(max, result.values[journey.steps[i].code].all - result.values[journey.steps[i].code].ready, result.values[journey.steps[i].code].ready);
+        }
+      }
+      $scope.maxContacts = max;
+      $scope.stats = result.values;
+    };
+    // Initial procesing of stats.
+    preProcessStats(chasseStats);
+
+    $scope.noJourneys = Object.keys(chasseConfig.journeys).length === 0;
+
     $scope.config = chasseConfig;
 
     var msg_tpl_lookup = {};
@@ -130,8 +132,8 @@
         {start: ts('Loading...'), success: ts('Loaded')},
         // The save action. Note that crmApi() returns a promise.
         crmApi('Chasse', 'getstats', {})
-        .then( result => $scope.stats = result.values )
-      );
+          .then(preProcessStats)
+        );
     };
   });
 

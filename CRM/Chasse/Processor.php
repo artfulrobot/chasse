@@ -42,22 +42,36 @@ class CRM_Chasse_Processor
 
   /**
    * Process all steps in all journeys.
+   *
+   * @return Array of values from journey() keyed by journey id.
    */
   public function allJourneys() {
+    $return = [];
     foreach ($this->config['journeys'] as $i => $journey) {
-      $this->journey($i);
+      $return[$i] = $this->journey($i);
     }
+    return $return;
   }
   /**
    * Process all steps in a journey.
    *
    * @param string $journey_id
+   *
+   * @return Array like:
+   * {
+   *   steps: [
+   *     { count: N },
+   *     ...
+   *   ]
+   * }
    */
   public function journey($journey_id) {
     $journey = $this->findJourneyById($journey_id);
+    $result = ['steps' => []];
     foreach (array_reverse(array_keys($journey['steps'] ?? [])) as $step_index) {
-      $this->step($journey_id, $step_index);
+      $result['steps'][$step_index] = ['count' => $this->step($journey_id, $step_index)];
     }
+    return $result;
   }
   /**
    * Return the config for the given journey id, or throw.
@@ -123,6 +137,8 @@ class CRM_Chasse_Processor
    *
    * @param string $journey_id
    * @param int $step_index
+   *
+   * @return int number of contacts affected.
    */
   public function step($journey_id, $step_index) {
     $journey = $this->findJourneyById($journey_id);
@@ -143,7 +159,7 @@ class CRM_Chasse_Processor
       [1 => [$step['code'], 'String']])
       ->fetchValue();
     if (!$count) {
-      return;
+      return 0;
     }
 
     // Put the contacts in a group.
@@ -158,6 +174,7 @@ class CRM_Chasse_Processor
     }
 
     $this->updateStep($step, $group_id);
+    return $count;
   }
 
   /**

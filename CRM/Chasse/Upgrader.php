@@ -15,27 +15,33 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
   public function install() {
 
     // Ensure we have the custom field group we need for contributions.
+    Civi::log()->info("Chasse:install running.", []);
     $chasse_custom_group = $this->api_get_or_create('CustomGroup', [
         'name' => "chasse",
         'extends' => "Contact",
       ],
       ['title' => 'Chassé: Supporter Journey']);
 
+    Civi::log()->info("Chasse:install custom group found/created.", $chasse_custom_group);
+
     // Add the step field
     $journey_step = $this->api_get_or_create('CustomField', [
       'name'            => "chasse_step",
       'custom_group_id' => $chasse_custom_group['id'],
+    ],
+    [
+      'label' => 'Current Step',
       'data_type'       => "String",
       'html_type'       => 'Text',
       'is_required'     => "0",
       'is_searchable'   => "1",
       'default_value'   => "",
       'text_length'     => "20",
-    ],
-    ['label' => 'Current Step']);
+    ]);
+    Civi::log()->info("Chasse:install journey step field found/created.", $journey_step);
 
     // Add the not_before field
-    $journey_step = $this->api_get_or_create('CustomField', [
+    $not_before = $this->api_get_or_create('CustomField', [
       'name'            => "chasse_not_before",
       'custom_group_id' => $chasse_custom_group['id'],
     ],
@@ -53,6 +59,22 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
       'date_format'      => 'd M yy',
       'time_format'      => '2',
     ]);
+    Civi::log()->info("Chasse:install not_before field found/created.", $not_before);
+
+    // Create empty config.
+    $config = Civi::settings()->get('chasse_config');
+    if (!$config || !isset($config['new_id']) || !isset($config['journeys'])) {
+      $config = [
+        'new_id'   => 0,
+        'journeys' => [],
+      ];
+      Civi::settings()->set('chasse_config', $config);
+      Civi::log()->info("Chasse:install config created", $config);
+    }
+    else {
+      Civi::log()->info("Chasse:install config left alone(hmmm) ", $config);
+    }
+
   }
 
 
@@ -95,13 +117,23 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    * Remove the custom field set.
    */
   public function uninstall() {
-    $chasse_custom_group_id = (int) civicrm_api3('CustomGroup', 'getvalue', [
-        'name' => "chasse",
-        'return' => 'id']);
+    try {
+      Civi::log()->debug('chasse uninstall', []);
+      $chasse_custom_group_id = (int) civicrm_api3('CustomGroup', 'getvalue', [
+          'name' => "chasse",
+          'return' => 'id']);
 
-    if ($chasse_custom_group_id > 0) {
-      civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
+      Civi::log()->debug('chasse uninstall group', [$chasse_custom_group_id]);
+      if ($chasse_custom_group_id > 0) {
+        civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
+      }
     }
+    catch (Exception $e) {
+      Civi::log()->debug('chasse uninstall exception', ['class' => get_class($e), 'message' => $e->getMessage()]);
+    }
+
+    // Remove the setting.
+    $journeys = Civi::settings()->set('chasse_config', NULL);
   }
 
   /**
@@ -207,7 +239,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
         'return' => 'id']);
 
     // Add the not_before field
-    $journey_step = $this->api_get_or_create('CustomField', [
+    $this->api_get_or_create('CustomField', [
       'name'             => "chasse_not_before",
       'custom_group_id'  => $chasse_custom_group_id,
     ],

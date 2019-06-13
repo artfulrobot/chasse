@@ -1,10 +1,10 @@
 <div class="crm-container" id="bootstrap-theme">
   <h1 crm-page-title>Chassé Journey Status</h1>
 
-  <div style="margin-bottom:2rem;text-align:center; padding:2rem;background:hsl(40deg, 80%, 95%);" ng-show="Array.isArray(config.journeys)" >
+  <div class="alert alert-info" ng-show="noJourneys" >
     No journeys planned yet. Shall we <a href='#chasse/config/new'>do that now</a>?
   </div>
-  <p><a href="#/chasse/config" >Edit Chassé Journey Plans</a> | <a href ng-click="reload()">Refresh status</a></p>
+  <p><a class="btn btn-success" href ng-click="reload()">Refresh status</a></p>
 
   <div
     ng-repeat="(id, journey) in config.journeys || []"
@@ -26,7 +26,7 @@
 
           <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="step.interval">
             <div class="chasse-diagram-bar-container">
-              <div class="chasse-bar" style="height:{{ (stats[step.code].all - stats[step.code].ready)  / maxContacts * 100"></div>
+              <div class="chasse-bar" style="height:{{ (stats[step.code].all - stats[step.code].ready)  / maxContacts * 100}}%"></div>
               <div class="chasse-label" >{{ stats[step.code].all - stats[step.code].ready }}</div>
             </div>
             <div class="chasse-diagram-action-container">
