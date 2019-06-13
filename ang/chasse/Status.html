@@ -24,20 +24,18 @@
         <div ng-repeat="(step_offset, step) in journey.steps || []" class="chasse-step-container">
           <div class="chasse-step-name">STEP {{ step.code }}</div>
 
-          <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="step.interval">
+          <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="previousStepHasInterval(journey, step_offset) || waiting(step.code)">
             <div class="chasse-diagram-bar-container">
-              <div class="chasse-bar" style="height:{{ (stats[step.code].all - stats[step.code].ready)  / maxContacts * 100}}%"></div>
-              <div class="chasse-label" >{{ stats[step.code].all - stats[step.code].ready }}</div>
+              <div class="chasse-bar" style="height:{{ waiting(step.code) / maxContacts * 100}}%"></div>
+              <div class="chasse-label" >{{ waiting(step.code) }}</div>
             </div>
             <div class="chasse-diagram-action-container">
               <div class="chasse-next" >
-                <div ng-if="step.interval">
-                  <div class="ui-icon fa-clock-o"></div>
-                  {{ prettifyInterval(step.interval) }}
-                </div>
+                <div class="ui-icon fa-clock-o"></div>
+                {{ prettifyInterval(journey, step_offset) }}
               </div>
             </div>
-          </div><div class="chasse-diagram-step-inner {{ step.interval ? 'half' : ''}}">
+          </div><div class="chasse-diagram-step-inner {{ (previousStepHasInterval(journey, step_offset) || waiting(step.code)) ? 'half' : ''}}">
             <div class="chasse-diagram-bar-container">
               <div class="chasse-bar" style="height:{{ stats[step.code].ready / maxContacts * 100 }}%"></div>
               <div class="chasse-label" >{{ stats[step.code].ready }}</div>

@@ -91,13 +91,45 @@
 
     $scope.busy = false;
 
-    $scope.prettifyInterval = function(interval) {
+    /*
+     * The step that is shown under the second step is the offset that is
+     * stored against the first step.
+     *
+     * The first step (0) does cannot have a value.
+     */
+    $scope.prettifyInterval = function(journey, step_offset) {
+      if (step_offset === 0) {
+        return '';
+      }
+      if (!journey.steps[step_offset-1].interval) {
+        return '';
+      }
+      var interval = journey.steps[step_offset-1].interval;
       var m = interval.match(/^(\d+ )(DAY|WEEK|MONTH)$/);
       if (!m) {
         return '';
       }
       return m[1] + m[2].toLowerCase() + ((m[1] == 1) ? '' : 's');
     };
+    /**
+     * The number of people on a step but can't be processed yet due to their
+     * not_before date.
+     */
+    $scope.waiting = function waiting(step_code) {
+      if (step_code in $scope.stats) {
+        return $scope.stats[step_code].all - $scope.stats[step_code].ready;
+      }
+      else {
+        console.log("can't find step code ", step_code, " in stats ", $scope.stats);
+        return 0;
+      }
+    };
+    /**
+     * Does the previous step have an offset configured?
+     */
+    $scope.previousStepHasInterval = function previousStepHasInterval(journey, step_offset) {
+      return (step_offset > 0 && journey.steps[step_offset-1].interval);
+    }
 
     $scope.runJourney = function (journey_id) {
       $scope.busy = true;
