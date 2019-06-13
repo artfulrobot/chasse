@@ -28,6 +28,7 @@
                 "sequential": 1,
                 "return": ["title","id"],
                 "options": {"limit":0},
+                'is_hidden' : 0,
                 "group_type": "Mailing List"})
             .then( response => response.is_error ? [] : response.values );
           },
@@ -59,7 +60,7 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('chasse').controller('ChasseConfig', function($route, $scope, crmApi, crmStatus, crmUiHelp,
+  angular.module('chasse').controller('ChasseConfig', function($route, $scope, $location, crmApi, crmStatus, crmUiHelp,
     chasseConfig, mailingGroups, msgTpls, mailFroms) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('chasse');
@@ -101,8 +102,17 @@
       $scope.dirty = true;
       var journey = chasseConfig.journeys[id];
       if (confirm("Are you sure you want to delete journey called " + journey.name + "?")) {
-        delete chasseConfig.journeys(id);
+        delete chasseConfig.journeys[id];
       }
+      return crmStatus(
+        // Status messages. For defaults, just use "{}"
+        {start: ts('Deleting...'), success: ts('Deleted.')},
+        // The save action. Note that crmApi() returns a promise.
+        crmApi('Setting', 'create', { 'chasse_config': chasseConfig })
+      ).then( () => {
+        // Go back to main page.
+        $location.path('/chasse');
+      });
     };
 
     /**
@@ -169,7 +179,16 @@
         {start: ts('Saving...'), success: ts('Saved')},
         // The save action. Note that crmApi() returns a promise.
         crmApi('Setting', 'create', { 'chasse_config': chasseConfig })
-      ).then( () => $scope.dirty=false );
+      ).then( () => {
+        console.log("saved, location is", $location.path());
+        if ($location.path() === '/chasse/config/new') {
+          console.log("changing to " + $scope.id);
+          $location.path("/chasse/config/" + $scope.id);
+        }
+        else {
+          $scope.dirty=false;
+        }
+      });
     };
 
     if (Object.keys(chasseConfig.journeys).length == 0) {

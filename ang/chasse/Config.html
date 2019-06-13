@@ -9,7 +9,6 @@
       >{{ts('Save')}}</button>
     <span ng-if="chasseConfigForm.$invalid" >Correct errors before saving</span>
   </div>
-
   <form name="chasseConfigForm" crm-ui-id-scope>
 
     <!-- List journeys and allow adding -->
@@ -21,40 +20,51 @@
       <div class="panel-body">
         <div class="">
           <!-- journey name -->
-          <div class="row form-group">
+          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeyname.$invalid}">
             <label class="col-sm-2 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
-            <div class="col-sm-10">
-              <input id="{{ 'journeyname' + id }}" name="{{ 'journeyname' + id }}" ng-model="journey.name" required ng-change="setDirty()"  class="form-control" />
+            <div class="col-sm-7">
+              <input
+                id="{{ 'journeyname' + id }}"
+                name="journeyname"
+                ng-model="journey.name"
+                required
+                ng-change="setDirty()"
+                class="form-control" />
             </div>
+            <div class="col-sm-3 chasse-validation-message" >Required</div>
           </div>
 
           <!-- Select mailing group -->
-          <div class="row form-group">
-            <label class="col-sm-2 control-label" for="{{ 'journeygroup' + id }}" >Mailing Group</label>
-            <div class="col-sm-10" >
-              <select xid="{{ 'journeygroup' + id }}"
+          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeygroup.$invalid}">
+            <label class="col-sm-2 control-label"  >Mailing Group</label>
+            <div class="col-sm-7" >
+              <select name="journeygroup"
                       ng-model="journey.mailing_group" required
+                      required
                       ng-change="setDirty()"
-                      crm-ui-select="{placeholder:'my mailing group...', width: '35em', allowClear:false}"
+                      crm-ui-select="{placeholder:'my mailing group...', width: '100%', allowClear:false}"
                 >
                 <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
               </select>
             </div>
+            <div class="col-sm-3 chasse-validation-message" >Required</div>
           </div>
 
           <!-- from address -->
-          <div class="row form-group">
-            <label class="col-sm-2 control-label" for="{{ 'journeyfrom' + id }}" >From address</label>
-            <div class="col-sm-10">
-                <select
-                  xid="{{ 'journeyfrom' + id }}" 
-                  ng-model="journey.mail_from" required
-                  ng-change="setDirty()"
-                  crm-ui-select="{placeholder:'who@example.com', width: '35em', allowClear:false}"
-                >
-                  <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
-                </select>
+          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeyfrom.$invalid}">
+            <label class="col-sm-2 control-label" >From address</label>
+            <div class="col-sm-7">
+              <select
+                ng-model="journey.mail_from" required
+                ng-change="setDirty()"
+                required
+                name="journeyfrom"
+                crm-ui-select="{placeholder:'who@example.com', width: '100%', allowClear:false}"
+              >
+                <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
+              </select>
             </div>
+            <div class="col-sm-3 chasse-validation-message" >Required</div>
           </div>
 
           <!-- schedule editor -->

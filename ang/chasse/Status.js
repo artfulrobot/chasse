@@ -54,7 +54,7 @@
   //   $scope -- This is the set of variables shared between JS and HTML.
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
-  angular.module('chasse').controller('ChasseStatus', function($scope, crmApi, crmStatus, crmUiHelp,
+  angular.module('chasse').controller('ChasseStatus', function($scope, $location, crmApi, crmStatus, crmUiHelp,
     chasseStats, chasseConfig, msgTpls, mailingGroups) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('chasse');

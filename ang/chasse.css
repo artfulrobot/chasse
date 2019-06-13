@@ -121,3 +121,5 @@
   flex: 1 0 auto;
   margin-right: 1rem;
 }
+.chasse-validation-message { display: none; color: #cf3458; /* Bootstrap red */ }
+.has-error .chasse-validation-message { display: block; }
