@@ -55,7 +55,10 @@
           </div>
         </div>
       </div><!--/chasse-diagram-->
-      <button class="btn btn-danger-outline" ng-click="runJourney(i)" ng-disabled="busy">Process Now</button>
+      <div ng-if="journeyHasSchedule(journey)" class="chasse-icon-box">
+        <i class="ui-icon fa-play-circle-o"></i> Automatic processing enabled {{ describeSchedule(journey.schedule); }}
+      </div>
+      <button ng-if="!journeyHasSchedule(journey)" class="btn btn-danger-outline" ng-click="runJourney(id)" ng-disabled="busy">Process Now</button>
     </div><!--/panel-body-->
   </div><!--/panel-->
 

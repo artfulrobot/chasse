@@ -99,20 +99,59 @@
       return m[1] + m[2].toLowerCase() + ((m[1] == 1) ? '' : 's');
     };
 
-    $scope.runJourney = function (journey_index) {
+    $scope.runJourney = function (journey_id) {
       $scope.busy = true;
 
-      var r = {name: chasseConfig[journey_index].name};
+      var r = {name: chasseConfig.journeys[journey_id].name};
       return crmStatus(
         // Status messages. For defaults, just use "{}"
         {start: ts('Processing Journey: %name...', r), success: ts('Finished processing journey: %name', r)},
         // The save action. Note that crmApi() returns a promise.
-        crmApi('Chasse', 'step', { journey_index: journey_index })
+        crmApi('Chasse', 'step', { journey_id: journey_id })
       ).then(response => {
         $scope.busy = false;
         return crmApi('Chasse', 'getstats', {})
-          .then(result => $scope.stats = result.values);
+          .then(preProcessStats);
       });
+    };
+    $scope.journeyHasSchedule = function journeyHasSchedule(journey) {
+      return 'schedule' in journey;
+    }
+    $scope.describeSchedule = function describeSchedule(schedule) {
+      var s = '';
+      if ('days' in schedule) {
+        var days=[];
+        for (var i=0;i<schedule.days.length;i++) {
+          days.push(['', 'Mon', 'Tues', 'Wednes', 'Thurs', 'Fri', 'Satur', 'Sun'][schedule.days[i]] + 'days');
+        }
+        s += ' on ' + days.join(', ');
+      }
+      if (schedule.day_of_month) {
+        s += ' on ' + schedule.day_of_month + th(schedule.day_of_month) + ' of each month';
+      }
+      if (schedule.time_earliest) {
+        s += ' after ' + schedule.time_earliest;
+      }
+      if (schedule.time_latest) {
+        s += ' before ' + schedule.time_latest;
+      }
+      return s;
+    }
+    function th(dom) {
+      if (!dom) {
+        return '';
+      }
+      const last_digit = dom.substr(-1);
+      if (last_digit === '1' && dom != '11') {
+        return 'st';
+      }
+      if (last_digit === '2' && dom != '12') {
+        return 'nd';
+      }
+      if (last_digit === '3') {
+        return 'rd';
+      }
+      return 'th';
     };
     $scope.save = function save() {
       return crmStatus(

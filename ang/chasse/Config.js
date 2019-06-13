@@ -180,7 +180,9 @@
         // The save action. Note that crmApi() returns a promise.
         crmApi('Setting', 'create', { 'chasse_config': chasseConfig })
       ).then( () => {
-        console.log("saved, location is", $location.path());
+        // Go back to status page after a save.
+        $location.path('/chasse');
+        /*
         if ($location.path() === '/chasse/config/new') {
           console.log("changing to " + $scope.id);
           $location.path("/chasse/config/" + $scope.id);
@@ -188,6 +190,7 @@
         else {
           $scope.dirty=false;
         }
+        */
       });
     };
 

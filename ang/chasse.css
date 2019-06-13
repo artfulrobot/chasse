@@ -123,3 +123,15 @@
 }
 .chasse-validation-message { display: none; color: #cf3458; /* Bootstrap red */ }
 .has-error .chasse-validation-message { display: block; }
+.chasse-icon-box {
+  padding-left: 2rem;
+}
+.chasse-icon-box i.ui-icon {
+  position: absolute;
+  margin-left: -2rem;
+  margin-top: 0.1em;
+  width:1.5rem;
+  font-size:1.5rem;
+  height:1.5rem;
+  color: #0071bd;
+}
