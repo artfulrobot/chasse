@@ -14,6 +14,21 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    */
   public function install() {
 
+
+    // Create empty config.
+    $config = Civi::settings()->get('chasse_config');
+    if (!$config || !isset($config['next_id']) || !isset($config['journeys'])) {
+      $config = [
+        'next_id'   => 0,
+        'journeys' => [],
+      ];
+      Civi::settings()->set('chasse_config', $config);
+      Civi::log()->info("Chasse:install config created", $config);
+    }
+    else {
+      Civi::log()->info("Chasse:install config left alone(hmmm) ", $config);
+    }
+
     // Ensure we have the custom field group we need for contributions.
     Civi::log()->info("Chasse:install running.", []);
     $chasse_custom_group = $this->api_get_or_create('CustomGroup', [
@@ -61,20 +76,6 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     ]);
     Civi::log()->info("Chasse:install not_before field found/created.", $not_before);
 
-    // Create empty config.
-    $config = Civi::settings()->get('chasse_config');
-    if (!$config || !isset($config['new_id']) || !isset($config['journeys'])) {
-      $config = [
-        'new_id'   => 0,
-        'journeys' => [],
-      ];
-      Civi::settings()->set('chasse_config', $config);
-      Civi::log()->info("Chasse:install config created", $config);
-    }
-    else {
-      Civi::log()->info("Chasse:install config left alone(hmmm) ", $config);
-    }
-
   }
 
 
@@ -103,14 +104,8 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    * created during the installation (e.g., a setting or a managed entity), do
    * so here to avoid order of operation problems.
    *
+   */
   public function postInstall() {
-    $customFieldId = civicrm_api3('CustomField', 'getvalue', array(
-      'return' => array("id"),
-      'name' => "customFieldCreatedViaManagedHook",
-    ));
-    civicrm_api3('Setting', 'create', array(
-      'myWeirdFieldSetting' => array('id' => $customFieldId, 'weirdness' => 1),
-    ));
   }
 
   /**
@@ -125,7 +120,20 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
 
       Civi::log()->debug('chasse uninstall group', [$chasse_custom_group_id]);
       if ($chasse_custom_group_id > 0) {
-        civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
+
+        // This seems problematic - 'DB Error: no such field' - need to disable logging.
+        // Try deleting each field separately.
+        foreach (['chasse_step', 'chass_not_before'] as $field_name) {
+          $field = civicrm_api3('CustomField', 'get', ['name' => $field_name, 'sequential' => 1]);
+          if ($field['count'] > 0) {
+            Civi::log()->debug("chasse uninstall: will delete " . $field_name, $field['values'][0]);
+            $result = civicrm_api3('CustomField', 'delete', ['id' => $field['values'][0]['id']]);
+            Civi::log()->debug("chasse uninstall: delete $field_name result", $result);
+          }
+        }
+
+        $result = civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
+        Civi::log()->debug('chasse uninstall: fieldset delete result', $result);
       }
     }
     catch (Exception $e) {
@@ -134,6 +142,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
 
     // Remove the setting.
     $journeys = Civi::settings()->set('chasse_config', NULL);
+
   }
 
   /**

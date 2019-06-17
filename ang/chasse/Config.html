@@ -20,8 +20,8 @@
       <div class="panel-body">
         <div class="">
           <!-- journey name -->
-          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeyname.$invalid}">
-            <label class="col-sm-2 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
+          <div class="row form-group form-group-lg chasse-step" ng-class="{'has-error': chasseConfigForm.journeyname.$invalid}">
+            <label class="col-sm-3 control-label" for="{{ 'journeyname' + id }}" >Journey name</label>
             <div class="col-sm-7">
               <input
                 id="{{ 'journeyname' + id }}"
@@ -30,13 +30,13 @@
                 required
                 ng-change="setDirty()"
                 class="form-control" />
+              <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeyname.$invalid">Required</div>
             </div>
-            <div class="col-sm-3 chasse-validation-message" >Required</div>
           </div>
 
           <!-- Select mailing group -->
           <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeygroup.$invalid}">
-            <label class="col-sm-2 control-label"  >Mailing Group</label>
+            <label class="col-sm-3 control-label"  >Mailing Group</label>
             <div class="col-sm-7" >
               <select name="journeygroup"
                       ng-model="journey.mailing_group" required
@@ -47,12 +47,12 @@
                 <option ng-repeat="group in groups" value="{{group.id}}" >{{group.title}}</option>
               </select>
             </div>
-            <div class="col-sm-3 chasse-validation-message" >Required</div>
+            <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeygroup.$invalid">Required</div>
           </div>
 
           <!-- from address -->
           <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeyfrom.$invalid}">
-            <label class="col-sm-2 control-label" >From address</label>
+            <label class="col-sm-3 control-label" >From address</label>
             <div class="col-sm-7">
               <select
                 ng-model="journey.mail_from" required
@@ -64,7 +64,7 @@
                 <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
               </select>
             </div>
-            <div class="col-sm-3 chasse-validation-message" >Required</div>
+            <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeyfrom.$invalid" >Required</div>
           </div>
 
           <!-- schedule editor -->
@@ -79,19 +79,38 @@
         <h2 class="panel-title">Steps in: {{journey.name}}</h2>
       </div>
       <div class="panel-body">
-        <table class="table">
-          <thead><tr>
-            <th>Code</th>
-            <th>Add to Group</th>
-            <th>Send Mailing</th>
-            <th>Delay next step</th>
-            <th>Re-order</th>
-          </tr></thead>
-          <tbody>
-            <tr ng-repeat="(step_offset, step) in journey.steps || []">
-              <td><input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 class="form-control"/></td>
-              <td><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" /></td>
-              <td>
+        <div ng-repeat="(step_offset, step) in journey.steps || []" class="row chasse-step-config-container">
+          <div class="col-sm-2">
+            <label>
+              Step Code<br/>
+              <input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 class="form-control"/>
+              <div class="row chasse-step-config-move-buttons">
+                <div class="col-xs-6">
+                  <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
+                </div>
+                <div class="col-xs-6">
+                  <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
+                </div>
+                <div class="col-xs-12">
+                  <button class="btn btn-xs btn-danger-outline" ng-click="deleteStep(journey, step_offset)"  >Delete</button>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div class="col-sm-1">
+          </div>
+          <div class="col-sm-9">
+
+            <div class="chasse-step-config">
+              <i class="ui-icon fa-user-plus"></i>
+              <label><input type="checkbox" ng-true-value="'1'" ng-change="setDirty()" ng-model="step.add_to_group" />
+                Add to group</label>
+            </div>
+
+            <div class="chasse-step-config">
+              <i class="ui-icon fa-envelope"></i>
+              <label>Send Mailing</label>
+              <div>
                 <select ng-model="step.send_mailing"
                    ng-change="setDirty()"
                    crm-ui-select="{width: '35em', allowClear:true}"
@@ -99,19 +118,17 @@
                   <option value="">(None)</option>
                   <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
                 </select>
-              </td>
-              <td>
-                <interval-selector interval="step.interval" set-dirty="setDirty()"></interval-selector>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
-                <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset+1)" ng-disabled="(step_offset + 1) == journey.steps.length" >&#x25BC;</button>
-                <button class="btn btn-sm btn-secondary-outline" ng-click="deleteStep(journey, step_offset)"  >Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
+              </div>
+            </div>
+
+            <div class="chasse-step-config">
+              <i class="ui-icon fa-clock-o"></i>
+              <interval-selector interval="step.interval" set-dirty="setDirty()"></interval-selector>
+            </div>
+          </div>
+        </div>
+
+        <p><br/>Note: Journeys are processed in reverse order. (otherwise the contacts in step 1 would get moved into step 2 and then re-processed along with the contacts already in step 2, etc.) So use the re-order buttons to make the processing safe.</p>
         <a class="btn btn-primary btn-sm" href ng-click="addStep(journey)">Add step</a>
       </div><!--/panel-body-->
     </div><!--/panel-->

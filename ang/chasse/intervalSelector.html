@@ -1,8 +1,9 @@
 <div class="row">
-  <div class="col-sm-6">
+  <label class="col-sm-12">Delay next step by</label>
+  <div class="col-sm-2">
     <input ng-model="qty" ng-change="updateString()" ng-disabled="unit === 'time'" size="2" class="form-control" />
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-10">
     <select ng-model="unit" ng-change="updateString()" class="form-control" >
       <option value="time">(no delay)</option>
       <option value="DAY">day(s)</option>

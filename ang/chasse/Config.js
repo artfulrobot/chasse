@@ -79,14 +79,13 @@
     $scope.addJourney = function addJourney() {
       $scope.dirty = true;
       var new_id = 'journey' + chasseConfig.next_id;
-      chasseConfig.next_id++;
+      chasseConfig.next_id = parseInt(chasseConfig.next_id) + 1;
 
       chasseConfig.journeys[new_id] = {
         name: 'Untitled Journey',
         id: new_id,
         steps: [],
       };
-      console.log("Added journey, config now:", chasseConfig);
       $scope.journey = chasseConfig.journeys[new_id];
       $scope.id = new_id;
     };
@@ -326,9 +325,10 @@
         };
         $scope.validTime = function(t) {
           if (!t) return true;
-          if (t.match(/[012][0-3]:[0-5][0-9]$/)) {
+          if (t.match(/[012][0-9]:[0-5][0-9]$/)) {
             return true;
           }
+          console.log("invalid ", t);
           return false;
         }
 

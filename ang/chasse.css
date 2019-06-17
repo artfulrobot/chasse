@@ -114,18 +114,15 @@
 }
 
 .chasse-schedule-day {
-  display:flex;
-  flex-wrap: wrap;
 }
 .chasse-schedule-day>span {
-  flex: 1 0 auto;
-  margin-right: 1rem;
 }
-.chasse-validation-message { display: none; color: #cf3458; /* Bootstrap red */ }
-.has-error .chasse-validation-message { display: block; }
+.chasse-validation-message { color: #cf3458; /* Bootstrap red */ }
+
 .chasse-icon-box {
   padding-left: 2rem;
 }
+.chasse-step-config i.ui-icon,
 .chasse-icon-box i.ui-icon {
   position: absolute;
   margin-left: -2rem;
@@ -134,4 +131,26 @@
   font-size:1.5rem;
   height:1.5rem;
   color: #0071bd;
+}
+
+.chasse-step-config {
+  padding: 1rem 1rem 1rem 3rem;
+}
+.chasse-step-config i.ui-icon {
+  margin-left: -3rem;
+}
+.chasse-step-config-container {
+  padding-bottom: 1rem;
+}
+.chasse-step-config-container {
+
+  padding-top: 1rem;
+  border-bottom: solid 1px #eee;
+
+}
+.chasse-step-config-move-buttons button {
+  width:100%;
+}
+.chasse-step-config-move-buttons>div {
+  margin-top: 0.5rem;
 }

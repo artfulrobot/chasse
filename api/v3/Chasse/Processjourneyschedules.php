@@ -30,7 +30,7 @@ function civicrm_api3_chasse_Processjourneyschedules($params) {
 
   if (!$journeys_to_run) {
     // Nothing to do.
-    return civicrm_api3_create_success(['message' => 'Nothing to do'], $params, 'Chasse', 'Processjourneyschedules');
+    return civicrm_api3_create_success(['message' => 'No journeys scheduled to run at this point.'], $params, 'Chasse', 'Processjourneyschedules');
   }
 
   if (!$chasse_processor->attemptToLock()) {
