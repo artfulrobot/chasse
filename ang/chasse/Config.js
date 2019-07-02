@@ -192,6 +192,19 @@
         */
       });
     };
+    $scope.stepCodeIsValid = function stepCodeIsValid(journey_id, step_offset, code) {
+      var lowercaseCode = code.toLowerCase();
+      for (id of Object.keys(chasseConfig.journeys)) {
+        for (var i=0; i<chasseConfig.journeys[id].steps.length; i++) {
+          //console.log(journey_id + '.' + step_offset + '.' + lowercaseCode, "<>", id+'.'+i+chasseConfig.journeys[id].steps[i].code.toLowerCase() );
+          if (chasseConfig.journeys[id].steps[i].code.toLowerCase() === lowercaseCode
+            && !(journey_id === id && step_offset === i)) {
+              return false;
+          }
+        }
+      }
+      return true;
+    }
 
     if (Object.keys(chasseConfig.journeys).length == 0) {
       $scope.addJourney();

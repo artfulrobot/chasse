@@ -299,4 +299,34 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
 
     return TRUE;
   }
+  /**
+   * - Update the journey configuration JSON to move 'from_email_address' into steps.
+   */
+  public function upgrade_0002() {
+    // Upgrade the configuration.
+    $config = Civi::settings()->get('chasse_config');
+    if (!$config) {
+      $config = ['next_id' => 0, 'journeys' => []];
+    }
+
+    foreach ($config['journeys'] as $journey_id => $journey) {
+      if (isset($journey['mail_from'])) {
+        // Found old per-journey config.
+        $from_default = $journey['mail_from'];
+
+        // Set the from address for each step (unless already set - it shouldn't be)
+        foreach ($config['journeys'][$journey_id]['steps'] as &$step) {
+          if (empty($step['mail_from'])) {
+            $step['mail_from'] = $from_default;
+          }
+        }
+
+        unset($config['journeys'][$journey_id]['mail_from']);
+      }
+
+      Civi::settings()->set('chasse_config', $config);
+    }
+
+    return TRUE;
+  }
 }

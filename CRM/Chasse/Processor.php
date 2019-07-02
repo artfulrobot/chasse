@@ -166,7 +166,7 @@ class CRM_Chasse_Processor
     $group_id = $this->populateJourneyGroup($journey_id, $step['code']);
 
     if ($step['send_mailing']) {
-      $this->sendMailing($step['send_mailing'], $journey, $step['code'], $group_id);
+      $this->sendMailing($step['send_mailing'], $journey, $step, $group_id);
     }
 
     if ($step['add_to_group']) {
@@ -182,25 +182,26 @@ class CRM_Chasse_Processor
    *
    * @param int $msg_template_id
    * @param array $journey The config for this journey.
-   * @param string $step_code. The step we're processing.
+   * @param array $step. The step we're processing.
    * @param int $group_id. The group that contains the contacts to mail.
    *
    * @return int ID of newly created mailing.
    */
-  public function sendMailing($msg_template_id, $journey, $step_code, $group_id) {
+  public function sendMailing($msg_template_id, $journey, $step, $group_id) {
 
     $tpl = civicrm_api3('MessageTemplate', 'getsingle', ['id' => $msg_template_id]);
     $unsubscribe_group = $journey['mailing_group'];
 
-    // Extract from address fields.
+
+    // Extract from address fields from the step.
     $result = civicrm_api3('OptionValue',  'getvalue',
-      ['return'=> "label", 'value'=> $journey['mail_from'], 'option_group_id'=> 'from_email_address']);
+      ['return'=> "label", 'value'=> $step['mail_from'], 'option_group_id'=> 'from_email_address']);
     if (preg_match('/^"([^"]+)"\s+<([^>]+)>$/', $result, $_)) {
       $from_name = $_[1];
       $from_mail = $_[2];
     }
     else {
-      throw new \Exception("Invalid From email address on journey $journey[name], step $step_code, (from email address #$journey[mail_from])");
+      throw new \Exception("Invalid From email address on journey $journey[name], step $step[code], (from email address #$journey[mail_from])");
     }
 
     // Domain contact

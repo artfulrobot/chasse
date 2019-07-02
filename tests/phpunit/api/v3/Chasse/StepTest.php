@@ -1,9 +1,5 @@
 <?php
 
-use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
-use Civi\Test\TransactionalInterface;
-
 /**
  * Chasse.Step API Test Case
  * This is a generic test class implemented with PHPUnit.
@@ -289,20 +285,18 @@ class api_v3_Chasse_StepTest  extends api_v3_Chasse_Base
           'name'          => 'Test Journey 1',
           'id'            => 'journey1',
           'mailing_group' => $this->mailing_group,
-          'mail_from'     => $this->from_id,
           'steps'         => [
-            [ 'code' => 'T1', 'next_code' => 'T2', 'send_mailing' => $this->msg_tpl_1, 'add_to_group' => ''],
-            [ 'code' => 'T2', 'next_code' => '', 'send_mailing' => $this->msg_tpl_2, 'add_to_group' => "1"],
+            [ 'code' => 'T1', 'next_code' => 'T2', 'send_mailing' => $this->msg_tpl_1, 'add_to_group' => '', 'mail_from' => $this->from_id ],
+            [ 'code' => 'T2', 'next_code' => '', 'send_mailing' => $this->msg_tpl_2, 'add_to_group' => "1", 'mail_from' => $this->from_id ],
           ],
         ],
         'journey2' => [
           'name'          => 'Test 2',
           'id'            => 'journey2',
           'mailing_group' => $this->mailing_group,
-          'mail_from'     => $this->from_id,
           'steps'         => [
-            [ 'code' => 'S1', 'next_code' => 'S2', 'send_mailing' => $this->msg_tpl_1, 'add_to_group' => '', 'interval' => '2 DAY'],
-            [ 'code' => 'S2', 'next_code' => '',   'send_mailing' => $this->msg_tpl_2, 'add_to_group' => "1"],
+            [ 'code' => 'S1', 'next_code' => 'S2', 'send_mailing' => $this->msg_tpl_1, 'add_to_group' => '', 'interval' => '2 DAY', 'mail_from' => $this->from_id ],
+            [ 'code' => 'S2', 'next_code' => '',   'send_mailing' => $this->msg_tpl_2, 'add_to_group' => "1", 'mail_from' => $this->from_id ],
           ],
         ],
       ]

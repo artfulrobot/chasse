@@ -39,7 +39,7 @@
             <label class="col-sm-3 control-label"  >Mailing Group</label>
             <div class="col-sm-7" >
               <select name="journeygroup"
-                      ng-model="journey.mailing_group" required
+                      ng-model="journey.mailing_group"
                       required
                       ng-change="setDirty()"
                       crm-ui-select="{placeholder:'my mailing group...', width: '100%', allowClear:false}"
@@ -48,23 +48,6 @@
               </select>
             </div>
             <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeygroup.$invalid">Required</div>
-          </div>
-
-          <!-- from address -->
-          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeyfrom.$invalid}">
-            <label class="col-sm-3 control-label" >From address</label>
-            <div class="col-sm-7">
-              <select
-                ng-model="journey.mail_from" required
-                ng-change="setDirty()"
-                required
-                name="journeyfrom"
-                crm-ui-select="{placeholder:'who@example.com', width: '100%', allowClear:false}"
-              >
-                <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
-              </select>
-            </div>
-            <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeyfrom.$invalid" >Required</div>
           </div>
 
           <!-- schedule editor -->
@@ -83,7 +66,19 @@
           <div class="col-sm-2">
             <label>
               Step Code<br/>
-              <input ng-model="step.code" required ng-change="setDirty();redoNextSteps(journey.steps)" size=6 class="form-control"/>
+              <input
+                required
+                ng-model="step.code"
+                ng-change="setDirty();redoNextSteps(journey.steps)"
+                crm-ui-validate="stepCodeIsValid(journey.id, step_offset, step.code)"
+                crm-ui-validate-name="{{ 'stepcode' + step_offset}}"
+                name="{{ 'stepcode' + step_offset}}"
+                size=6
+                class="form-control"/>
+              <div
+                class="chasse-validation-message"
+                ng-if="chasseConfigForm['stepcode' + step_offset].$invalid"
+                >Unique code required</div>
               <div class="row chasse-step-config-move-buttons">
                 <div class="col-xs-6">
                   <button class="btn btn-sm btn-secondary-outline" ng-click="moveStep(journey, step_offset, step_offset-1)" ng-disabled="step_offset == 0" >&#x25B2;</button>
@@ -113,11 +108,29 @@
               <div>
                 <select ng-model="step.send_mailing"
                    ng-change="setDirty()"
-                   crm-ui-select="{width: '35em', allowClear:true}"
+                   crm-ui-select="{width: '100%', allowClear:true}"
                 >
                   <option value="">(None)</option>
                   <option ng-repeat="msg_tpl in msg_tpls" value="{{msg_tpl.id}}" >{{msg_tpl.msg_title}}</option>
                 </select>
+              </div>
+
+              <!-- from address -->
+              <div ng-if="step.send_mailing">
+                <label class="control-label" >From address</label>
+                <div>
+                  <select
+                    crm-ui-validate="step.send_mailing ? !!step.mail_from : true"
+                    crm-ui-validate-name="{{ 'stepfrom' + step_offset}}"
+                    ng-model="step.mail_from"
+                    ng-change="setDirty()"
+                    name="{{ 'stepfrom' + step_offset}}"
+                    crm-ui-select="{allowClear:true, placeholder:'who@example.com', width: '100%', allowClear:false}"
+                  >
+                    <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
+                  </select>
+                    <div class="chasse-validation-message" ng-if="chasseConfigForm['stepfrom' + step_offset].$invalid">Required</div>
+                </div>
               </div>
             </div>
 
@@ -141,5 +154,4 @@
     <br/><br/>
     <a class="btn btn-danger-outline btn-xs" href ng-click="deleteJourney(id)" >Delete Journey</a><br/><br/>
   </form>
-
 </div>
