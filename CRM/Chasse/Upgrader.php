@@ -76,6 +76,22 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     ]);
     Civi::log()->info("Chasse:install not_before field found/created.", $not_before);
 
+    // Add rule if CiviRule is installed.
+    $result = civicrm_api3('Extension', 'get', [
+      'is_active' => 1,
+      'full_name' => "org.civicoop.civirules",
+    ]);
+    if ($result['count'] == 1) {
+      $this->api_get_or_create('CiviRuleAction',
+        [
+          'name' => "chasse_set_step",
+          'class_name' => "CRM_CivirulesActions_ChasseSetStep",
+        ],
+        [
+          'label' => "Set Chassé step",
+          'is_active' => "1",
+        ]);
+    }
   }
 
 
@@ -141,7 +157,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     }
 
     // Remove the setting.
-    $journeys = Civi::settings()->set('chasse_config', NULL);
+    Civi::settings()->set('chasse_config', NULL);
 
   }
 
@@ -325,6 +341,30 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
       }
 
       Civi::settings()->set('chasse_config', $config);
+    }
+
+    return TRUE;
+  }
+  /**
+   * Create the CiviRules action.
+   */
+  public function upgrade_0003() {
+
+    // Add rule if CiviRule is installed.
+    $result = civicrm_api3('Extension', 'get', [
+      'is_active' => 1,
+      'full_name' => "org.civicoop.civirules",
+    ]);
+    if ($result['count'] == 1) {
+      $action = $this->api_get_or_create('CiviRuleAction',
+        [
+          'name' => "chasse_set_step",
+          'class_name' => "CRM_CivirulesActions_ChasseSetStep",
+        ],
+        [
+          'label' => "Set Chassé step",
+          'is_active' => "1",
+        ]);
     }
 
     return TRUE;

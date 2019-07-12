@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/civirule/form/action/chasse_set_step</path>
+    <page_callback>CRM_Chasse_Form_ChasseSetStepRulesAction</page_callback>
+    <title>ChasseSetStepRulesAction</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
