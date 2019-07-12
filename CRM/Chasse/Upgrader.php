@@ -77,11 +77,14 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     Civi::log()->info("Chasse:install not_before field found/created.", $not_before);
 
     // Add rule if CiviRule is installed.
-    $result = civicrm_api3('Extension', 'get', [
-      'is_active' => 1,
-      'full_name' => "org.civicoop.civirules",
-    ]);
-    if ($result['count'] == 1) {
+    $this->installCiviRuleAction();
+  }
+
+  /**
+   * Ensure our rule exists.
+   */
+  public function installCiviRuleAction() {
+    if ($this->civirulesIsInstalled()) {
       $this->api_get_or_create('CiviRuleAction',
         [
           'name' => "chasse_set_step",
@@ -94,6 +97,18 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     }
   }
 
+  /**
+   * Returns true if CiviRules is installed.
+   *
+   * @return bool
+   */
+  public function civirulesIsInstalled() {
+    $result = civicrm_api3('Extension', 'get', [
+      'is_active' => 1,
+      'full_name' => "org.civicoop.civirules",
+    ]);
+    return ($result['count'] == 1);
+  }
 
   /**
    * Helper function for creating data structures.
@@ -150,6 +165,18 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
 
         $result = civicrm_api3('CustomGroup', 'delete', ['id' => $chasse_custom_group_id]);
         Civi::log()->debug('chasse uninstall: fieldset delete result', $result);
+      }
+
+      if ($this->civirulesIsInstalled()) {
+        $result = civicrm_api3('CiviRuleAction', 'get',
+        [
+          'sequential' => 1,
+          'name' => "chasse_set_step",
+          'class_name' => "CRM_CivirulesActions_ChasseSetStep",
+        ]);
+        if ($result['count']) {
+          $result = civicrm_api3('CiviRuleAction', 'delete', ['id' => $result['values'][0]['id']]);
+        }
       }
     }
     catch (Exception $e) {
@@ -349,24 +376,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    * Create the CiviRules action.
    */
   public function upgrade_0003() {
-
-    // Add rule if CiviRule is installed.
-    $result = civicrm_api3('Extension', 'get', [
-      'is_active' => 1,
-      'full_name' => "org.civicoop.civirules",
-    ]);
-    if ($result['count'] == 1) {
-      $action = $this->api_get_or_create('CiviRuleAction',
-        [
-          'name' => "chasse_set_step",
-          'class_name' => "CRM_CivirulesActions_ChasseSetStep",
-        ],
-        [
-          'label' => "Set Chassé step",
-          'is_active' => "1",
-        ]);
-    }
-
+    $this->installCiviRuleAction();
     return TRUE;
   }
 }
