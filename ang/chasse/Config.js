@@ -13,13 +13,14 @@
               .then( api_response => {
                 console.log(api_response);
                 return CRM._.isArray(api_response) ? api_response : [] ;
-                })
+                });
           },
           mailingGroups: function(crmApi) {
             return crmApi('group', 'get', {
                 "sequential": 1,
                 "return": ["title","id"],
                 "options": {"limit":0},
+                "is_hidden" : 0,
                 "group_type": "Mailing List"})
             .then( response => response.is_error ? [] : response.values );
           },
