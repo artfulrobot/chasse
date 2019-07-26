@@ -316,6 +316,14 @@ class CRM_Chasse_Processor
     }
   }
 
+  /**
+   * Returns the step config for a given journey ID and step code.
+   *
+   * @param string $journey_id
+   * @param string $step_code
+   *
+   * @return array
+   */
   public function getStep($journey_id, $step_code) {
     $journey = $this->findJourneyById($journey_id);
     foreach ($journey['steps'] ?? [] as $step) {
@@ -324,6 +332,20 @@ class CRM_Chasse_Processor
       }
     }
     throw new \Exception("Step '$step_code' not found in journey '$journey_id'");
+  }
+  /**
+   * Helper / DRY function.
+   *
+   * @return array keyed by step codes whose values are labels
+   */
+  public function getStepCodeOptions() {
+    $steps = [];
+    foreach ($this->config['journeys'] as $journey) {
+      foreach ($journey['steps'] as $step) {
+        $steps[$step['code']] = $journey['name'] . ': step "' . $step['code'] . '"';
+      }
+    }
+    return $steps;
   }
   /**
    * Clear the journey field for contacts if they have been removed from the group.

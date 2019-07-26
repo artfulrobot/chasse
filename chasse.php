@@ -183,3 +183,12 @@ function chasse_civicrm_navigationMenu(&$menu) {
   _chasse_civix_navigationMenu($menu);
 }
 
+function chasse_civicrm_searchTasks($objectType, &$tasks) {
+  if ($objectType == 'contact') {
+    $tasks[] = [
+      'title'  => 'Chassé - set journey step',
+      'class'  => 'CRM_Chasse_Form_Task_SetStep'
+      // 'result' => TRUE, unsure what this does.
+    ];
+  }
+}
