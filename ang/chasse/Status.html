@@ -1,4 +1,4 @@
-<div class="crm-container" id="bootstrap-theme">
+<div class="crm-container crm-block chasse-container" id="bootstrap-theme">
   <h1 crm-page-title>Chassé Journey Status</h1>
 
   <div class="alert alert-info" ng-show="noJourneys" >
@@ -26,7 +26,7 @@
 
           <div class="chasse-diagram-step-inner chasse-diagram-step-inner--wait" ng-if="previousStepHasInterval(journey, step_offset) || waiting(step.code)">
             <div class="chasse-diagram-bar-container">
-              <div class="chasse-bar" style="height:{{ waiting(step.code) / maxContacts * 100}}%"></div>
+              <div class="chasse-bar" style="height:{{ waiting(step.code) / maxContacts * 100 }}%"></div>
               <div class="chasse-label" >{{ waiting(step.code) }}</div>
             </div>
             <div class="chasse-diagram-action-container">

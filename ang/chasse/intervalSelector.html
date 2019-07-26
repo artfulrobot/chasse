@@ -10,5 +10,13 @@
       <option value="WEEK">week(s)</option>
       <option value="MONTH">month(s)</option>
     </select>
+    <div class="chasse-validation-message" ng-if="unit === 'time'" >Warning: if
+      you do not have a delay then contacts will progress through this step
+      whenever the journey runs. If you are using automatic scheduling enabled
+      then journeys are processed every time cron fires which could be every 5
+      minutes. So if you successive steps without a delay the contact will be
+      processed through them all in a matter of minutes, which is probably not
+      what you want.
+      <div>
   </div>
 </div>

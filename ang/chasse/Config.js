@@ -21,7 +21,7 @@
                 }
                 console.log('chasse_config', api_response);
                 return api_response;
-              })
+              });
           },
           mailingGroups: function(crmApi) {
             return crmApi('group', 'get', {
@@ -138,7 +138,7 @@
       if (steps.length > 0) {
         steps[steps.length-1].next_code = '';
       }
-    }
+    };
 
     $scope.moveStep = function moveStep(journey, step_old, step_new) {
       $scope.dirty = true;
@@ -169,7 +169,7 @@
 
     $scope.save = function save() {
       // Redo journey steps, just in case.
-      for (id of Object.keys(chasseConfig.journeys)) {
+      for (var id of Object.keys(chasseConfig.journeys)) {
         $scope.redoNextSteps(chasseConfig.journeys[id].steps);
       }
 
@@ -194,7 +194,7 @@
     };
     $scope.stepCodeIsValid = function stepCodeIsValid(journey_id, step_offset, code) {
       var lowercaseCode = code.toLowerCase();
-      for (id of Object.keys(chasseConfig.journeys)) {
+      for (var id of Object.keys(chasseConfig.journeys)) {
         for (var i=0; i<chasseConfig.journeys[id].steps.length; i++) {
           //console.log(journey_id + '.' + step_offset + '.' + lowercaseCode, "<>", id+'.'+i+chasseConfig.journeys[id].steps[i].code.toLowerCase() );
           if (chasseConfig.journeys[id].steps[i].code.toLowerCase() === lowercaseCode
@@ -204,9 +204,9 @@
         }
       }
       return true;
-    }
+    };
 
-    if (Object.keys(chasseConfig.journeys).length == 0) {
+    if (Object.keys(chasseConfig.journeys).length === 0) {
       $scope.addJourney();
     }
   })
@@ -242,7 +242,7 @@
           $scope.setDirty({ev: {}});
         };
       }]
-    }
+    };
   })
   .directive('scheduleEditor', function() {
     return {
@@ -338,15 +338,15 @@
         };
         $scope.validTime = function(t) {
           if (!t) return true;
-          if (t.match(/[012][0-9]:[0-5][0-9]$/)) {
+          if (t.match(/^[012]?[0-9]:[0-5][0-9]$/)) {
             return true;
           }
           console.log("invalid ", t);
           return false;
-        }
+        };
 
       }]
-    }
+    };
   })
   ;
 

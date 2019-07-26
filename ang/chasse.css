@@ -1,14 +1,18 @@
 /* Add any CSS rules for Angular module "chasse" */
+.chasse-container {
+  padding:0 2rem;
+}
 .chasse-panel-with-actions {
   display: flex;
   justify-content: space-between;
-  &>* {
-    flex: 1 1 auto;
-  }
-  &>.chasse-panel-actions {
-    flex: 0 0 auto;
-  }
 }
+.chasse-panel-with-actions * {
+    flex: 1 1 auto;
+}
+.chasse-panel-with-actions .chasse-panel-actions {
+    flex: 0 0 auto;
+}
+
 .chasse-diagram {
   display: flex;
   flex-wrap: nowrap;

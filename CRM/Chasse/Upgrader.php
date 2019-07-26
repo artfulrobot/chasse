@@ -320,7 +320,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
     if (!isset($journeys['next_id'])) {
 
       $new_journeys_array = [];
-      foreach ($journeys['journeys'] as $i => $journey) {
+      foreach ($journeys as $i => $journey) {
         // Originally journeys were stored as an array and referenced by their index.
         // This could cause problems, e.g. if one is deleted then an automated job could
         // now be triggering the wrong journey. So give each job an ID like journeyNNN and
