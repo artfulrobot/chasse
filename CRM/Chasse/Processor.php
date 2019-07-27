@@ -190,6 +190,13 @@ class CRM_Chasse_Processor
   public function sendMailing($msg_template_id, $journey, $step, $group_id) {
 
     $tpl = civicrm_api3('MessageTemplate', 'getsingle', ['id' => $msg_template_id]);
+
+    // Mosaico insists on [unsubscribe_link] and [show_link] instead of CiviCRM's tokens, so replace that now.
+    $tpl['msg_html'] = strtr($tpl['msg_html'], [
+      '[unsubscribe_link]' => '{action.unsubscribeUrl}',
+      '[show_link]'        => '{mailing.viewUrl}',
+    ]);
+
     $unsubscribe_group = $journey['mailing_group'];
 
 
