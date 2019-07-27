@@ -116,3 +116,13 @@ You can manually progress a journey from the status screen (there's a button for
 it), or you can do your own automation using the API and a custom cron job or a
 custom Scheduled Job.
 
+### Chasse.step API action
+
+This API provides a way to programmatically progress journeys.
+
+- Chasse.step - progress *all* journeys
+
+- Chasse.step journey_id=journey3 - just the journey identified by journey3
+
+- Chasse.step journey_id=journey2 step=CD4  - But the only reason to do a single
+  step is for testing.

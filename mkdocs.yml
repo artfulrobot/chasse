@@ -7,6 +7,8 @@ pages:
 - Installation: install.md
 - Configure Journeys: journeys.md
 - Developers: developer.md
+- Monitoring: monitoring.md
+- Put contacts on a journey: starting.md
 
 
 markdown_extensions:
