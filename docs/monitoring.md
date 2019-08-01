@@ -4,7 +4,7 @@ This page explains how to see where people are at in your journeys.
 
 ## The overview page
 
-![Screenshot of status screen](./chasse-overview.png)
+![Screenshot of status screen](img/chasse-overview.png)
 
 Find this at **Mailings » Chassé Supporter Journeys**. Each journey gets a
 chart showing the number of contacts at each point in the journey and details
