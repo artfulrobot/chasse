@@ -70,7 +70,7 @@ You can edit someone's record and set a step (and a "not before" date/time).
 You can run a contacts search and use the **Chassé - set journey step** search
 task.
 
-![Screenshot of search task form](/img/chasse-search-task.png)
+![Screenshot of search task form](img/chasse-search-task.png)
 
 Hopefully that screen is self explanatory.
 
