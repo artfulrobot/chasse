@@ -5,7 +5,7 @@ Get your supporters [chassé](https://en.wikipedia.org/wiki/Chass%C3%A9)-ing
 through an email-driven donor journey to improve your organisation's onboarding
 experience and improve supporter development.
 
-![Screenshot of status screen](./chasse-overview.png)
+![Screenshot of status screen](img/chasse-overview.png)
 
 The concept is that each contact can be at a particular stage of one of a set of
 journeys. So you might have a journey for new people to your email list, and a
@@ -34,5 +34,5 @@ licensed under [AGPL-3.0](LICENSE.txt). It's hosted at
 issues and pull/merge requests from developers are welcome. Developers: pease
 see the [technical information](/developer) to help you understand how it works.
 
-<div style="max-width: 20rem"><a href="https://artfulrobot.uk" ><img src="/img/artfulrobot-logo.svg" alt="Artful Robot logo"/></a></div>
+<div style="max-width: 20rem"><a href="https://artfulrobot.uk" ><img src="img/artfulrobot-logo.svg" alt="Artful Robot logo"/></a></div>
 
