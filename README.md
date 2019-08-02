@@ -1,9 +1,9 @@
 # Chassé Supporter Journeys
 
-![Screenshot](./images/screenshot-status.png)
+![Screenshot](/docs/img/chasse-overview.png)
 
 Get your supporters chassé-ing through an automated email-driven donor journey
 to improve your organisation's onboarding experience.
 
-Please see full documentation, currently in the docs/ folder.
+Please see full documentation at [docs.civicrm.org](https://docs.civicrm.org/chasse/en/latest/), or on github in the docs/ folder.
 
