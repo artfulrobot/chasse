@@ -2,7 +2,7 @@ site_name: Chassé
 repo_url: https://github.com/artfulrobot/chasse
 theme: material
 
-pages:
+nav:
 - Home: index.md
 - Installation: install.md
 - Configure Journeys: journeys.md
