@@ -192,3 +192,25 @@ function chasse_civicrm_searchTasks($objectType, &$tasks) {
     ];
   }
 }
+
+function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+  
+  $chasseAccessPermissions = array('edit message templates'); // Set as desired, this matches the default menu permissions above
+
+  if ($params['select'] == 'chasse_config') {
+    $permissions['setting']['get'] = $chasseAccessPermissions;
+  }
+
+  if ($params['name'] == 'chasse_config') {
+    $permissions['setting']['getvalue'] = $chasseAccessPermissions;
+  }
+
+  if ($params['chasse_config']) {
+    $permissions['setting']['create'] = $chasseAccessPermissions;
+  }
+
+ $permissions['chasse']['getstats'] = $chasseAccessPermissions;
+
+ $permissions['chasse']['step'] = $chasseAccessPermissions;
+
+}
