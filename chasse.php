@@ -192,10 +192,18 @@ function chasse_civicrm_searchTasks($objectType, &$tasks) {
     ];
   }
 }
-
+/**
+ * Implements hook_civicrm_alterAPIPermissions().
+ *
+ * Specify permissions for API calls required in ang/chasse/Config.js 
+ *
+ * Sets to 'edit message templates' to match chasse_civicrm_navigationMenu
+ * 
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_alterAPIPermissions/
+ */
 function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
   
-  $chasseAccessPermissions = array('edit message templates'); // Set as desired, this matches the default menu permissions above
+  $chasseAccessPermissions = ['edit message templates']; 
 
   if ($params['select'] == 'chasse_config') {
     $permissions['setting']['get'] = $chasseAccessPermissions;
