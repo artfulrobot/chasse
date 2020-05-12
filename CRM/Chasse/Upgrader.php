@@ -104,7 +104,7 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
    */
   public function civirulesIsInstalled() {
     $result = civicrm_api3('Extension', 'get', [
-      'is_active' => 1,
+      'status'    => 'installed',
       'full_name' => "org.civicoop.civirules",
     ]);
     return ($result['count'] == 1);
