@@ -33,6 +33,9 @@ class CRM_Chasse_Form_ChasseSetStepRulesAction extends CRM_CivirulesActions_Form
         'isDefault' => TRUE,
       ),
     ));
+    
+    // Add rule action ID
+    $this->add('hidden', 'rule_action_id');
 
     // export form elements
     $this->assign('elementNames', $this->getRenderableElementNames());
