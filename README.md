@@ -9,7 +9,7 @@ Please see full documentation at [docs.civicrm.org](https://docs.civicrm.org/cha
 
 ## Changelog
 
-### v2.1 (as yet unreleased)
+### v2.1
 
 - Bugfix in CiviRules. Thanks @semseysandor for identifying and fixing, thanks @ufundo for testing.
 

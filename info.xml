@@ -9,16 +9,16 @@
     <email>forums@artfulrobot.uk</email>
   </maintainer>
   <urls>
-    <url desc="Main Extension Page">https://artfulrobot.uk</url>
-    <url desc="Documentation">https://artfulrobot.uk</url>
+    <url desc="Main Extension Page">https://github.com/artfulrobot/chasse</url>
+    <url desc="Documentation">https://docs.civicrm.org/chasse/en/latest/</url>
     <url desc="Support">https://artfulrobot.uk</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate>2019-08-02</releaseDate>
+  <releaseDate>2020-05-18</releaseDate>
   <version>2.1</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.0</ver>
+    <ver>5.0, 5.24, 5.26</ver>
   </compatibility>
   <comments></comments>
   <civix>
