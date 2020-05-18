@@ -205,20 +205,19 @@ function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
 
   $chasseAccessPermissions = ['edit message templates'];
 
-  if (isset($params['select']) && $params['select'] == 'chasse_config') {
-    $permissions['setting']['get'] = $chasseAccessPermissions;
+  // Allow users with 'edit message templates' full access to Chassé settings.
+  if ($entity === 'Setting' && (($params['select'] ?? '') === 'chasse_config')) {
+    // Grant full access to this setting.
+    $permissions['setting']['default'] = $chasseAccessPermissions;
   }
 
-  if (isset($params['name']) && $params['name'] == 'chasse_config') {
-    $permissions['setting']['getvalue'] = $chasseAccessPermissions;
-  }
+  // Allow users witih 'edit message templates' to call:
+  // - Chasse.getstats
+  // - Chasse.step
+  $permissions['chasse']['getstats'] = $chasseAccessPermissions;
+  $permissions['chasse']['step'] = $chasseAccessPermissions;
 
-  if (isset($params['chasse_config'])) {
-    $permissions['setting']['create'] = $chasseAccessPermissions;
-  }
-
- $permissions['chasse']['getstats'] = $chasseAccessPermissions;
-
- $permissions['chasse']['step'] = $chasseAccessPermissions;
-
+  // Note: we do NOT grant access to Chasse.processjourneyschedules
+  // as this is designed to be run by cron, which we assume to be
+  // run by a higher privileged user.
 }
