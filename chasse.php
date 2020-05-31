@@ -205,10 +205,19 @@ function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
 
   $chasseAccessPermissions = ['edit message templates'];
 
-  // Allow users with 'edit message templates' full access to Chassé settings.
-  if ($entity === 'Setting' && (($params['select'] ?? '') === 'chasse_config')) {
-    // Grant full access to this setting.
-    $permissions['setting']['default'] = $chasseAccessPermissions;
+  // Allow users with 'edit message templates' to read+write access to Chassé settings.
+
+  if ($entity === 'setting') {
+
+    if (($params['name'] ?? '') === 'chasse_config') {
+      $permissions['setting']['getvalue'] = $chasseAccessPermissions;
+    }
+
+    // Check 'chasse_config' is the *only* setting to "create" in the parameters for the api call before granting access.
+    if (! array_diff ( array_keys($params), array( 'chasse_config', 'check_permissions', 'prettyprint', 'version' ) ) ) {
+      $permissions['setting']['create'] = $chasseAccessPermissions;
+    }
+
   }
 
   // Allow users witih 'edit message templates' to call:
