@@ -214,7 +214,7 @@ function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
     }
 
     // Check 'chasse_config' is the *only* setting to "create" in the parameters for the api call before granting access.
-    if (! array_diff ( array_keys($params), array( 'chasse_config', 'check_permissions', 'prettyprint', 'version' ) ) ) {
+    if (array_diff ( array_keys($params), ['check_permissions', 'prettyprint', 'version'] ) === ['chasse_config'] ) {
       $permissions['setting']['create'] = $chasseAccessPermissions;
     }
 
