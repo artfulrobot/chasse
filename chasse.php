@@ -220,7 +220,7 @@ function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
 
   }
 
-  // Allow users witih 'edit message templates' to call:
+  // Allow users with 'edit message templates' to call:
   // - Chasse.getstats
   // - Chasse.step
   $permissions['chasse']['getstats'] = $chasseAccessPermissions;
