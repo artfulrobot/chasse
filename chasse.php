@@ -205,7 +205,7 @@ function chasse_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
 
   $chasseAccessPermissions = ['edit message templates'];
 
-  // Allow users with 'edit message templates' to read+write access to Chassé settings.
+  // Allow users with 'edit message templates' read+write access to Chassé settings.
 
   if ($entity === 'setting') {
 
