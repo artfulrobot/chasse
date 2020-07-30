@@ -132,6 +132,22 @@
                     <div class="chasse-validation-message" ng-if="chasseConfigForm['stepfrom' + step_offset].$invalid">Required</div>
                 </div>
               </div>
+
+              <!-- reply-to address -->
+              <div ng-if="step.mail_from">
+                <label class="control-label" >Reply-to address (Optional)</label>
+                <div>
+                  <select
+                    ng-model="step.mail_replyto"
+                    ng-change="setDirty()"
+                    name="{{ 'stepfrom' + step_offset + 'reply'}}"
+                    crm-ui-select="{allowClear:true, width: '100%'}"
+                  >
+                    <option value="">(Default)</option>
+                    <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <div class="chasse-step-config">

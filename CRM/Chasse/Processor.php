@@ -214,11 +214,11 @@ class CRM_Chasse_Processor
     // Domain contact
     $domain_contact = CRM_Core_BAO_Domain::getDomain()->contact_id;
 
-    $mailing = civicrm_api3('Mailing', 'create', [
+    // Mailing parameters
+    $params = [
       'sequential' => 1,
       'name' => $tpl['msg_title'],
       'msg_template_id' => $msg_template_id,
-      //'replyto_email'
       'groups' => [
         'include' => [$group_id],
         'exclude' => [],
@@ -244,7 +244,27 @@ class CRM_Chasse_Processor
       //'include' => array(),
       //'exclude' => array(),
       //),
-    ]);
+    ];
+
+    // Check if mail_replyto available
+    if (isset($step['mail_replyto']) && !empty($step['mail_replyto'])) {
+      // Extract reply-to address fields from the step.
+      $result = civicrm_api3('OptionValue',  'getvalue', ['return'=> "label", 'value'=> $step['mail_replyto'], 'option_group_id'=> 'from_email_address']);
+
+      if (preg_match('/^"([^"]+)"\s+<([^>]+)>$/', $result, $_)) {
+        $replyto_name = $_[1];
+        $replyto_mail = $_[2];
+
+        // Add reply-to to mailing parameters
+        $params['replyto_email'] = $replyto_mail;
+      }
+      else {
+        throw new \Exception("Invalid Reply-to email address on journey $journey[name], step $step[code], (from email address #$journey[mail_from])");
+      }
+    }
+
+    // Create mailing
+    $mailing = civicrm_api3('Mailing', 'create', $params);
 
     return $mailing['id'];
   }
