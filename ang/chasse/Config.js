@@ -32,6 +32,14 @@
                 "group_type": "Mailing List"})
             .then( response => response.is_error ? [] : response.values );
           },
+	  mailingCampaigns: function(crmApi) {
+	   return crmApi('campaign', 'get', {
+                "sequential": 1,
+                "return": ["title","id"],
+                "options": {"limit":0},
+		"is_active": 1})
+            .then( response => response.is_error ? [] : response.values );
+          },
           msgTpls: function(crmApi) {
             return crmApi('MessageTemplate', 'get', {
               "sequential": 1,
@@ -61,7 +69,7 @@
   //   crmApi, crmStatus, crmUiHelp -- These are services provided by civicrm-core.
   //   myContact -- The current contact, defined above in config().
   angular.module('chasse').controller('ChasseConfig', function($route, $scope, $location, crmApi, crmStatus, crmUiHelp,
-    chasseConfig, mailingGroups, msgTpls, mailFroms) {
+    chasseConfig, mailingGroups, mailingCampaigns, msgTpls, mailFroms) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('chasse');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/chasse/Config'}); // See: templates/CRM/chasse/Config.hlp
@@ -73,6 +81,7 @@
     $scope.setDirty = function() {console.log("setDirty"); $scope.dirty = true;};
     $scope.config = chasseConfig;
     $scope.groups = mailingGroups;
+    $scope.campaigns = mailingCampaigns;
     $scope.msg_tpls = msgTpls;
     $scope.mail_froms = mailFroms;
 

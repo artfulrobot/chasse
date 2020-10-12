@@ -50,6 +50,23 @@
             <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeygroup.$invalid">Required</div>
           </div>
 
+          <!-- Select journey campaign -->
+          <div class="row form-group" ng-class="{'has-error': chasseConfigForm.journeycampaign.$invalid}">
+            <label class="col-sm-3 control-label"  >Campaign</label>
+            <div class="col-sm-7" >
+              <select name="journeycampaign"
+                      ng-model="journey.campaign_id"
+                      ng-change="setDirty()"
+                      crm-ui-select="{width: '100%', allowClear: true}"
+                >
+                <option value="">(None)</option>
+                <option ng-repeat="campaign in campaigns" value="{{campaign.id}}" >{{campaign.title}}</option>
+              </select>
+            </div>
+            <div class="col-sm-3 chasse-validation-message" ng-if="chasseConfigForm.journeycampaign.$invalid">Invalid</div>
+          </div>
+
+
           <!-- schedule editor -->
           <schedule-editor journey="journey" set-dirty="setDirty()"/>
 
