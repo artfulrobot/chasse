@@ -18,13 +18,13 @@ The system can be **automated** so that people bump along without you clicking a
 
 !!! summary "Quick start:"
 
-    1. [Install the Chassé extension](/install).
+    1. [Install the Chassé extension](install).
 
-    2. [Define your journeys](/journeys).
+    2. [Define your journeys](journeys).
 
-    3. [How to start people on journeys](/starting).
+    3. [How to start people on journeys](starting).
 
-    4. [Monitoring journeys](/monitoring).
+    4. [Monitoring journeys](monitoring).
 
 ## Free/Libre Software
 
