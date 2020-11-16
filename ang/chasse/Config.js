@@ -33,13 +33,21 @@
             .then( response => response.is_error ? [] : response.values );
           },
 	  mailingCampaigns: function(crmApi) {
-	   return crmApi('campaign', 'get', {
-                "sequential": 1,
-                "return": ["title","id"],
-                "options": {"limit":0},
-		"is_active": 1})
-            .then( response => response.is_error ? [] : response.values );
-          },
+	   return crmApi('Setting', 'getvalue', {
+		"name": "enable_components" })
+	   .then ( enabled_components => {
+		if (Object.values(enabled_components).indexOf("CiviCampaign") === -1) { 
+			return [];
+		 } else {
+			return crmApi('campaign', 'get', {
+       					"sequential": 1,
+                			"return": ["title","id"],
+                			"options": {"limit":0},
+					"is_active": 1})
+            			.then( response => response.is_error ? [] : response.values );
+		}
+	    });
+	  },
           msgTpls: function(crmApi) {
             return crmApi('MessageTemplate', 'get', {
               "sequential": 1,
@@ -82,6 +90,7 @@
     $scope.config = chasseConfig;
     $scope.groups = mailingGroups;
     $scope.campaigns = mailingCampaigns;
+    $scope.display_campaign_options = !(mailingCampaigns.length === 0);
     $scope.msg_tpls = msgTpls;
     $scope.mail_froms = mailFroms;
 
