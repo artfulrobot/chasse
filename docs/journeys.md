@@ -110,7 +110,7 @@ after 9:30" then it would never trigger!
 ### Non automatic processing
 
 You may prefer to trigger processing by another means, in which case simply
-un-check the Automtic Processing option.
+un-check the Automatic Processing option.
 
 You can manually progress a journey from the status screen (there's a button for
 it), or you can do your own automation using the API and a custom cron job or a
