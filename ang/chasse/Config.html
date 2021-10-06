@@ -134,16 +134,16 @@
               </div>
 
               <!-- reply-to address -->
-              <div ng-if="step.mail_from">
-                <label class="control-label" >Reply-to address (Optional)</label>
+              <div ng-if="step.send_mailing && step.mail_from">
+                <label class="control-label">Reply-to address</label>
                 <div>
                   <select
-                    ng-model="step.mail_replyto"
+                    ng-model="step.mail_reply_to"
                     ng-change="setDirty()"
-                    name="{{ 'stepfrom' + step_offset + 'reply'}}"
-                    crm-ui-select="{allowClear:true, width: '100%'}"
+                    name="{{ 'stepfrom' + step_offset + 'reply' }}"
+                    crm-ui-select="{allowClear:false, width: '100%'}"
                   >
-                    <option value="">(Default)</option>
+                    <option value="0">Same as From address</option>
                     <option ng-repeat="mailfrom in mail_froms" value="{{mailfrom.value}}" >{{mailfrom.label}}</option>
                   </select>
                 </div>

@@ -164,6 +164,7 @@
         next_code: '',
         send_mailing: '',
         add_to_group: false,
+        mail_reply_to: '0',
       });
     };
 
