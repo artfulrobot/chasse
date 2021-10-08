@@ -212,9 +212,8 @@ class CRM_Chasse_Processor
     }
 
     // Extract reply-to address fields from the step.
-    if ($step['mail_reply_to'] == '0') {
-      $replyto_mail = $from_mail;
-    } else {
+    $replyto_mail = $from_mail;
+    if ($step['mail_reply_to'] > 0) {
       $result = civicrm_api3('OptionValue', 'getvalue', ['return' => "label", 'value' => $step['mail_reply_to'], 'option_group_id' => 'from_email_address']);
 
       if (preg_match('/^"([^"]+)"\s+<([^>]+)>$/', $result, $_)) {
