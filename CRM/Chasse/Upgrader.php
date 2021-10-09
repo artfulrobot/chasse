@@ -399,8 +399,8 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
         }
       }
 
-      Civi::settings()->set('chasse_config', $config);
     }
+    Civi::settings()->set('chasse_config', $config);
 
     return true;
   }
