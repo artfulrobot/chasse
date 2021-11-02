@@ -382,6 +382,8 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
 
   /**
    * - Update the journey configuration add 'mail_reply_to' to steps
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public function upgrade_0004()
   {
@@ -391,11 +393,18 @@ class CRM_Chasse_Upgrader extends CRM_Chasse_Upgrader_Base {
       $config = ['next_id' => 0, 'journeys' => []];
     }
 
+    // Get default from address
+    $default_from_address = civicrm_api3('OptionValue', 'getvalue', [
+      'return' => "value",
+      'option_group_id' => "from_email_address",
+      'is_default' => 1,
+    ]);
+
     foreach ($config['journeys'] as $journey_id => $journey) {
       // Set the mail_reply_to for each step (unless already set - it shouldn't be)
       foreach ($config['journeys'][$journey_id]['steps'] as &$step) {
         if (!isset($step['mail_reply_to'])) {
-          $step['mail_reply_to'] = '0';
+          $step['mail_reply_to'] = $default_from_address;
         }
       }
 
