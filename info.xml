@@ -14,11 +14,11 @@
     <url desc="Support">https://artfulrobot.uk</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate>2020-05-18</releaseDate>
-  <version>2.1</version>
+  <releaseDate>2021-12-20</releaseDate>
+  <version>2.1.1</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.0</ver>
+    <ver>5.36</ver>
   </compatibility>
   <comments></comments>
   <civix>
