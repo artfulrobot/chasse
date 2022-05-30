@@ -234,6 +234,7 @@ class CRM_Chasse_Processor
       'approval_date' => date('Y-m-d H:i:s'),
       'body_html' => $tpl['msg_html'],
       'subject' => $tpl['msg_subject'],
+      'campaign_id' => $journey['campaign_id'] ?? null,
 
       //'template_type' => $templateTypes[0]['name'],
       //'template_options' => array('nonce' => 1),
