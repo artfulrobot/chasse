@@ -1,26 +1,11 @@
-# Chassé Supporter Journeys
+# Give Up GitHub
 
-![Screenshot](/docs/img/chasse-overview.png)
+This project has given up GitHub.  ([See Software Freedom Conservancy's *Give Up  GitHub* site for details](https://GiveUpGitHub.org).)
 
-Get your supporters chassé-ing through an automated email-driven donor journey
-to improve your organisation's onboarding experience.
+You can now find this project at [CiviCRM's GitLab](https://lab.civicrm.org/extensions/chasse) instead.
 
-Please see full documentation at [docs.civicrm.org](https://docs.civicrm.org/chasse/en/latest/), or on github in the docs/ folder.
+Any use of this project's code by GitHub Copilot, past or present, is done without our permission.  We do not consent to GitHub's use of this project's code in Copilot.
 
-## Changelog
+Join us; you can [give up GitHub](https://GiveUpGitHub.org) too!
 
-### v2.1.1
-
-No functional changes, just a civix upgrade meaning it works with PHP 7.4 (and 8).
-
-### v2.1
-
-- Bugfix in CiviRules. Thanks @semseysandor for identifying and fixing, thanks @ufundo for testing.
-
-- Allow uses with the `edit message templates` permission to administer
-  Chassé via the Mailings » Chassé Supporter Journeys screen. Thanks
-  @ufundo for this.
-
-### v2.0
-
-Various feature improvements (per-person delays rather than weekly schedule for example) and CiviRules integration.
+![Logo of the GiveUpGitHub campaign](https://sfconservancy.org/img/GiveUpGitHub.png)
